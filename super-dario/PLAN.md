@@ -159,47 +159,34 @@ better for anything you might eventually share.
 
 ### The power-up is the tutorial
 
-One gesture carries three meanings, sequenced by game state. Nothing is ever
-explained.
+Acquisition follows convention: the item pops out of a bump block, lands on the
+ground, and you pick it up by running into it. No new gesture, nothing to
+explain.
 
-| When | Arms out means | What the player sees |
+What *is* taught is the throw itself, and it's taught by failing:
+
+| When | Arms out does | What the player sees |
 |---|---|---|
-| 0:00–0:32 | A throw that fails | The **full throw animation** — windup, arms punch out — and nothing comes out. Dario looks at his own empty hands |
-| 0:32 | **A reach** | He stretches, catches the Claude Code item mid-air |
-| 0:32–end | A throw that works | Identical motion, sprite fires |
+| Before the power-up | Nothing | The **full throw animation** — windup, arms punch out — and nothing comes out. Dario looks at his own empty hands |
+| After the power-up | Fires | Identical motion, sprite flies |
 
-**Why the failed throw plays the real animation.** A substitute animation (a
-shrug, a head-shake) reads as *the game didn't understand you*. The full throw
+**Why the locked throw plays the real animation.** A substitute animation — a
+shrug, a head-shake — reads as *the game didn't understand you*. The full throw
 with an empty result reads as *the game understood perfectly; Dario can't do it
-yet*. The failure becomes the character's limitation rather than the system's —
+yet*. The failure becomes the character's limitation rather than the system's:
 diegetic, and funny instead of broken.
 
 It also drills the motor pattern. Every failed attempt is a rep, so the first
-real throw is actually the player's tenth throw and the first one that works.
+real throw is actually the player's tenth throw — and the first one that works.
 
-**The gesture that fails is the gesture that fixes it.** Reaching out is how you
-grab the power-up. The motion that's been failing for thirty seconds is the
-motion that acquires the cure — a tighter loop than Mario's, where you simply
-walk into the flower.
+Two implementation notes:
 
-Three implementation notes, each of which the design breaks without:
-
-- **The power-up cannot be on a cloud.** Arms-up and arms-out are mutually
-  exclusive body positions, so "jump to it, then reach for it" is a hard combo
-  thirty seconds into a first run. Float it at arm height on flat ground during
-  a calm stretch.
-- **Touching it must also work.** Fallback pickup on collision, so nobody runs
-  past it and gets stuck without the ability. But give the reach version the
-  full flourish — catch, freeze frame, chime — so reaching is clearly the right
-  way without being the only way.
 - **The confused beat has to diminish.** Full reaction on the first two
-  attempts, a smaller one for the next few, then just the animation with no
-  reaction. Twenty identical confused looks is grating.
-
-**Safeguard:** light the HUD's THROW lamp even while the ability is locked.
-Dario reacting already implies "input received," but the lamp makes it explicit.
-No player should ever conclude their camera is broken when the game is only
-saying *not yet*.
+  attempts, smaller for the next few, then just the animation. Twenty identical
+  confused looks is grating.
+- **Light the HUD's THROW lamp even while locked.** Dario reacting already
+  implies "input received," but the lamp makes it explicit. No player should
+  conclude their camera is broken when the game is only saying *not yet*.
 
 **Aerial throws still work,** and this is why the edge-triggered jump was the
 right call. Arms drop back to neutral immediately after the flick, so you can
@@ -214,21 +201,41 @@ stretch goal.
 
 ## 6. World 1-1 — "The Scaling Course"
 
-Roughly 80 seconds, one screen tall, scrolling right. Seven beats:
+About 85 seconds, one screen tall, scrolling right. Calibration happens on a
+pre-run screen, not in the level.
+
+The structure teaches **one verb four ways** before introducing a second. Jump
+is first a way past a blocker, then the same thing confirmed, then a way to
+avoid or attack, then a way to activate something — and that fourth use is what
+hands you the power-up.
 
 | # | Time | Beat | Teaches |
 |---|---|---|---|
-| 1 | 0–8s | **Calibration porch.** Flat ground, no hazards. "RAISE BOTH HANDS" → Dario hops | Jump, at zero risk |
-| 2 | 8–20s | **First racks.** Two single server racks, wide landings | Jump timing |
-| 3 | 20–32s | **First hallucination.** One enemy walking at you — stomp or jump over | Threat reading |
-| 4 | 32–40s | **Claude Code power-up** floating at arm height on flat ground. Reach to catch it. "ARMS OUT!" Two enemies to practice on | Throw |
-| 5 | 40–55s | **Pit + cloud chain.** Three clouds over a gap, token arc above | Consecutive jumps |
-| 6 | 55–70s | **Paperclip pair + double rack.** The one real difficulty spike | Both gestures together |
-| 7 | 70–80s | **DEPLOY flag.** Score tally, "RUN AGAIN?" | — |
+| 1 | 0–6s | **Open ground.** Auto-run, a few ground-level tokens you collect just by running | You move without doing anything |
+| 2 | 6–16s | **The wall.** A single server rack. Dario runs in place against it, legs going, indefinitely. Coach prompt fades in after ~2s: "RAISE BOTH HANDS" | **Jump**, at zero cost |
+| 3 | 16–24s | **Taller rack.** Same verb, slightly bigger | It wasn't a fluke |
+| 4 | 24–34s | **First hallucination.** Walks at you. Jump over it or land on it | Same verb, first stakes |
+| 5 | 34–46s | **The bump block.** Floating block overhead. Jump into it, the Claude Code power-up pops out, lands, you run into it. Coach: "ARMS OUT!" | Jump as *activation*; throw unlocked |
+| 6 | 46–56s | **Throw practice.** Two hallucinations, flat ground, nothing else in the way | **Throw**, in isolation |
+| 7 | 56–68s | **Clouds and the first pit.** Three clouds over a gap, token arc above. *Checkpoint* | Verticality, first real fail state |
+| 8 | 68–78s | **Paperclip pair + double rack.** The one difficulty spike. *Checkpoint* | Both verbs together |
+| 9 | 78–86s | **DEPLOY flag.** Score tally, "RUN AGAIN?" | — |
 
-Checkpoints after beats 3 and 5.
+### Why a blocker and not a hazard
 
----
+The first thing that demands a jump is a wall, not a pit. Fail at a pit and you
+die; fail at a wall and you stand there. The player gets to be confused for as
+long as they need, at no cost, until they work it out.
+
+Auto-run makes this better than it is in Mario. Dario hits the rack and runs in
+place against it forever — a patient, wordless prompt that never times out. It
+also becomes the game's universal failure mode: a confused player ends up
+stalled against something rather than dead.
+
+**Build in this order too.** M1 ships beats 1–4 only: auto-run, two racks, one
+enemy. That is enough to tell you whether jumping feels good, which is the
+question that decides the project. Beats 5–6 come next, then 7–9. Don't build
+the pit until the jump is proven.
 
 ## 7. Tech stack
 
@@ -268,7 +275,7 @@ super-dario/
 | | Milestone | Days | Done when |
 |---|---|---|---|
 | **M0** | **Spike — go/no-go** | 0.5 | Webcam + landmarker + skeleton overlay, gestures logged to console. **Measure end-to-end latency here.** If it's unusable, the whole design changes |
-| **M1** | Playable on keyboard | 2 | Full platformer, all of 1-1, arrows/space/F. No camera. This is a real game already |
+| **M1** | Playable on keyboard | 2 | Platformer core + **beats 1–4 only** (auto-run, two racks, one enemy), arrows/space/F. No camera. Enough to know whether jumping feels good |
 | **M2** | Intent bus wired | 1 | Gestures drive the same intents. Both inputs live simultaneously |
 | **M3** | Puppet rig | 1 | Dario's arms follow yours continuously, not just on trigger |
 | **M4** | Art, audio, juice | 2 | Sprites, blips, screen shake, particles, "REFACTORED" popups |
@@ -286,7 +293,7 @@ any camera is involved.
 | Risk | Mitigation |
 |---|---|
 | **Latency makes jumps feel unfair** | Coyote time, jump buffering, forgiving level design. Measure at M0 before committing |
-| **Arm fatigue** | Edge-triggered jump, 80-second course, sit-down keyboard mode always available |
+| **Arm fatigue** | Edge-triggered jump, 85-second course, sit-down keyboard mode always available |
 | **Lighting and framing** | Framing guide box in the PiP, explicit "stand ~6ft back, waist up" on the title screen |
 | **Laptop thermals** | Cap inference at 30fps, GPU delegate, decoupled loops |
 | **Standing requirement** | Seated calibration profile; one-arm mode (either wrist above shoulder = jump) |
@@ -309,7 +316,7 @@ Settled, and now assumed throughout this document:
 
 | | Decision | Consequence |
 |---|---|---|
-| **Scope** | One perfect 80-second course | The 9-day estimate holds. No second level; time goes into feel, not content |
+| **Scope** | One polished 85-second course | The 9-day estimate holds. No second level; time goes into feel, not content |
 | **Audience** | Build for an in-person demo first, harden later | Onboarding stays minimal for v1 — you are the onboarding. M5's playtest decides whether cold-start work is worth doing |
 | **Enemy hit** | Poof + "REFACTORED" popup | Half a day. The convert-to-follower idea stays on the post-M6 list |
 | **Throw** | Fixed arc, no aiming | Gesture stays binary and easy to detect. `armAngle` is still in the intent struct, so aiming costs nothing to revisit |

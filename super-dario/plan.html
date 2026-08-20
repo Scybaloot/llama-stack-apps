@@ -173,7 +173,7 @@ td code,p code,li code{font-family:"JetBrains Mono",monospace;font-size:.86em;ba
 
 /* ---------- Beat strip ---------- */
 .strip-wrap{overflow-x:auto;padding-bottom:12px;margin:0 0 12px}
-.strip{display:flex;min-width:900px;border:1px solid var(--rule);background:var(--surface)}
+.strip{display:flex;min-width:1180px;border:1px solid var(--rule);background:var(--surface)}
 .beat{padding:16px 14px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:7px}
 .beat:last-child{border-right:0}
 .beat-t{font-family:"JetBrains Mono",monospace;font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-faint)}
@@ -207,7 +207,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   <div class="hud-inner">
     <div class="hud-item"><span class="hud-k">PROJECT</span><span class="hud-v is-accent">SUPER DARIO</span></div>
     <div class="hud-item"><span class="hud-k">WORLD</span><span class="hud-v">1-1</span></div>
-    <div class="hud-item"><span class="hud-k">RUN TIME</span><span class="hud-v">80 SEC</span></div>
+    <div class="hud-item"><span class="hud-k">RUN TIME</span><span class="hud-v">85 SEC</span></div>
     <div class="hud-item"><span class="hud-k">MILESTONES</span><span class="hud-v">M0-M6</span></div>
     <div class="hud-item"><span class="hud-k">ESTIMATE</span><span class="hud-v is-gold">9 DAYS</span></div>
     <div class="hud-item"><span class="hud-k">STATUS</span><span class="hud-v">SPEC LOCKED</span></div>
@@ -360,37 +360,24 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
     </table></div>
     <div class="call">
       <p class="call-k">BUILD THE LEVEL AROUND THIS ONE</p>
-      <p><strong>The power-up is the tutorial.</strong> One gesture carries three meanings, sequenced by game state. Nothing is ever explained to the player.</p>
+      <p><strong>The power-up is the tutorial.</strong> Acquisition follows convention &mdash; the item pops out of a bump block, lands, and you pick it up by running into it. No new gesture, nothing to explain. What gets taught is the throw itself, and it's taught by failing.</p>
     </div>
     <div class="tw"><table>
-      <thead><tr><th>When</th><th>Arms out means</th><th>What the player sees</th></tr></thead>
+      <thead><tr><th>When</th><th>Arms out does</th><th>What the player sees</th></tr></thead>
       <tbody>
-        <tr><td class="num">0:00&ndash;0:32</td><td>A throw that fails</td><td>The <strong>full throw animation</strong> &mdash; windup, arms punch out &mdash; and nothing comes out. Dario looks at his own empty hands</td></tr>
-        <tr><td class="num">0:32</td><td>A reach</td><td>He stretches and catches the Claude Code item mid-air</td></tr>
-        <tr><td class="num">0:32&ndash;end</td><td>A throw that works</td><td>Identical motion, sprite fires</td></tr>
+        <tr><td>Before the power-up</td><td>Nothing</td><td>The <strong>full throw animation</strong> &mdash; windup, arms punch out &mdash; and nothing comes out. Dario looks at his own empty hands</td></tr>
+        <tr><td>After the power-up</td><td>Fires</td><td>Identical motion, sprite flies</td></tr>
       </tbody>
     </table></div>
     <div class="col">
-      <h3>Why the failed throw plays the real animation</h3>
+      <h3>Why the locked throw plays the real animation</h3>
       <p>A substitute animation &mdash; a shrug, a head-shake &mdash; reads as <em>the game didn't understand you</em>. The full throw with an empty result reads as <em>the game understood perfectly; Dario can't do it yet</em>. The failure becomes the character's limitation rather than the system's: diegetic, and funny instead of broken.</p>
       <p>It also drills the motor pattern. Every failed attempt is a rep, so the first real throw is actually the player's tenth throw &mdash; and the first one that works.</p>
-      <h3>The gesture that fails is the gesture that fixes it</h3>
-      <p>Reaching out is how you grab the power-up. The motion that has been failing for thirty seconds is the motion that acquires the cure &mdash; a tighter loop than Mario's, where you simply walk into the flower.</p>
-      <p>Three implementation notes, each of which the design breaks without:</p>
       <ul>
-        <li><strong>The power-up cannot sit on a cloud.</strong> Arms-up and arms-out are mutually exclusive body positions, so "jump to it, then reach for it" is a hard combo thirty seconds into a first run. Float it at arm height on flat ground during a calm stretch.</li>
-        <li><strong>Touching it must also work.</strong> Fallback pickup on collision, so nobody runs past it and gets stranded without the ability &mdash; but give the reach version the full flourish (catch, freeze frame, chime) so reaching is clearly the right way without being the only way.</li>
         <li><strong>The confused beat has to diminish.</strong> Full reaction on the first two attempts, smaller for the next few, then just the animation. Twenty identical confused looks is grating.</li>
+        <li><strong>Light the HUD's THROW lamp even while locked.</strong> Dario reacting already implies "input received," but the lamp makes it explicit. No player should conclude their camera is broken when the game is only saying <em>not yet</em>.</li>
       </ul>
-    </div>
-    <div class="call">
-      <p class="call-k">SAFEGUARD</p>
-      <p>Light the HUD's THROW lamp <em>even while the ability is locked</em>. Dario reacting already implies "input received," but the lamp makes it explicit. No player should ever conclude their camera is broken when the game is only saying <em>not yet</em>.</p>
-    </div>
-    <div class="col">
       <p><strong>Aerial throws still work</strong> &mdash; and this is why the edge-triggered jump was the right call. Arms drop back to neutral immediately after the flick, so you can jump and <em>then</em> punch out mid-air. A hold-to-jump design would have made the two gestures genuinely exclusive.</p>
-    </div>
-    <div class="col">
       <p><strong>One Dario, not brothers.</strong> Single player. Two-player couch mode &mdash; two people in frame, the pose model tracks both &mdash; is a genuinely easy stretch goal, but it stays a stretch goal.</p>
     </div>
   </section>
@@ -399,17 +386,20 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
     <p class="sec-k">06 &middot; LEVEL DESIGN</p>
     <h2>World 1-1 &mdash; "The Scaling Course"</h2>
     <div class="col">
-      <p>Roughly 80 seconds, one screen tall, scrolling right. Seven beats &mdash; bar width below is proportional to how long each one lasts.</p>
+      <p>About 85 seconds, one screen tall, scrolling right. Calibration happens on a pre-run screen, not in the level.</p>
+      <p>The structure teaches <strong>one verb four ways</strong> before introducing a second. Jump is first a way past a blocker, then the same thing confirmed, then a way to avoid or attack, then a way to activate something &mdash; and that fourth use is what hands you the power-up.</p>
     </div>
     <div class="strip-wrap">
       <div class="strip">
-        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">0&ndash;8s</span><span class="beat-n">Calibration porch</span><span class="beat-x">Flat ground, no hazards. "RAISE BOTH HANDS" &rarr; Dario hops. Teaches jump at zero risk</span></div>
-        <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">8&ndash;20s</span><span class="beat-n">First racks</span><span class="beat-x">Two single server racks, wide landings. Jump timing</span></div>
-        <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">20&ndash;32s</span><span class="beat-n">First hallucination</span><span class="beat-x">One enemy walking at you &mdash; stomp or jump over<br><span class="flag">CHECKPOINT</span></span></div>
-        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">32&ndash;40s</span><span class="beat-n">Claude Code power-up</span><span class="beat-x">Floating at arm height on flat ground &mdash; reach to catch it. "ARMS OUT!" Two enemies to practice on</span></div>
-        <div class="beat" style="flex:15"><div class="beat-bar"></div><span class="beat-t">40&ndash;55s</span><span class="beat-n">Pit + cloud chain</span><span class="beat-x">Three clouds over a gap, token arc above<br><span class="flag">CHECKPOINT</span></span></div>
-        <div class="beat is-peak" style="flex:15"><div class="beat-bar"></div><span class="beat-t">55&ndash;70s</span><span class="beat-n">Paperclip pair + double rack</span><span class="beat-x">The one real difficulty spike. Both gestures together</span></div>
-        <div class="beat is-end" style="flex:10"><div class="beat-bar"></div><span class="beat-t">70&ndash;80s</span><span class="beat-n">DEPLOY flag</span><span class="beat-x">Score tally, "RUN AGAIN?"</span></div>
+        <div class="beat" style="flex:6"><div class="beat-bar"></div><span class="beat-t">0&ndash;6s</span><span class="beat-n">Open ground</span><span class="beat-x">Auto-run, a few ground-level tokens collected just by running. You move without doing anything</span></div>
+        <div class="beat is-teach" style="flex:10"><div class="beat-bar"></div><span class="beat-t">6&ndash;16s</span><span class="beat-n">The wall</span><span class="beat-x">One server rack. Dario runs in place against it indefinitely. Prompt fades in after ~2s: "RAISE BOTH HANDS." Teaches <strong>jump</strong> at zero cost</span></div>
+        <div class="beat" style="flex:8"><div class="beat-bar"></div><span class="beat-t">16&ndash;24s</span><span class="beat-n">Taller rack</span><span class="beat-x">Same verb, slightly bigger. Proves it wasn't a fluke</span></div>
+        <div class="beat" style="flex:10"><div class="beat-bar"></div><span class="beat-t">24&ndash;34s</span><span class="beat-n">First hallucination</span><span class="beat-x">Walks at you. Jump over it or land on it. Same verb, first stakes</span></div>
+        <div class="beat is-teach" style="flex:12"><div class="beat-bar"></div><span class="beat-t">34&ndash;46s</span><span class="beat-n">The bump block</span><span class="beat-x">Jump into it from below, the power-up pops out, lands, you run into it. Jump as <em>activation</em>; throw unlocked</span></div>
+        <div class="beat is-teach" style="flex:10"><div class="beat-bar"></div><span class="beat-t">46&ndash;56s</span><span class="beat-n">Throw practice</span><span class="beat-x">Two hallucinations, flat ground, nothing else in the way. Teaches <strong>throw</strong> in isolation</span></div>
+        <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">56&ndash;68s</span><span class="beat-n">Clouds and the first pit</span><span class="beat-x">Three clouds over a gap, token arc above. Verticality, first real fail state<br><span class="flag">CHECKPOINT</span></span></div>
+        <div class="beat is-peak" style="flex:10"><div class="beat-bar"></div><span class="beat-t">68&ndash;78s</span><span class="beat-n">Paperclip pair + double rack</span><span class="beat-x">The one difficulty spike. Both verbs together<br><span class="flag">CHECKPOINT</span></span></div>
+        <div class="beat is-end" style="flex:8"><div class="beat-bar"></div><span class="beat-t">78&ndash;86s</span><span class="beat-n">DEPLOY flag</span><span class="beat-x">Score tally, "RUN AGAIN?"</span></div>
       </div>
     </div>
     <div class="legend">
@@ -417,6 +407,14 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <span><i class="dot g"></i>TEACHES A GESTURE</span>
       <span><i class="dot b"></i>DIFFICULTY SPIKE</span>
     </div>
+    <div class="col">
+      <h3>Why a blocker and not a hazard</h3>
+      <p>The first thing that demands a jump is a wall, not a pit. Fail at a pit and you die; fail at a wall and you stand there. The player gets to be confused for as long as they need, at no cost, until they work it out.</p>
+      <p>Auto-run makes this work better here than it does in Mario. Dario hits the rack and runs in place against it forever &mdash; a patient, wordless prompt that never times out. It also becomes the game's universal failure mode: a confused player ends up stalled against something rather than dead.</p>
+      <h3>Build in this order too</h3>
+      <p>M1 ships beats 1&ndash;4 only: auto-run, two racks, one enemy. That is enough to tell you whether jumping feels good, which is the question that decides the project. Beats 5&ndash;6 come next, then 7&ndash;9. Don't build the pit until the jump is proven.</p>
+    </div>
+
   </section>
 
   <section>
@@ -449,7 +447,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <thead><tr><th></th><th>Milestone</th><th>Days</th><th>Done when</th></tr></thead>
       <tbody>
         <tr><td class="ms">M0</td><td>Spike &mdash; go/no-go</td><td class="num">0.5</td><td>Webcam + landmarker + skeleton overlay, gestures logged to console. <strong>Measure end-to-end latency here.</strong> If it's unusable, the whole design changes</td></tr>
-        <tr><td class="ms">M1</td><td>Playable on keyboard</td><td class="num">2</td><td>Full platformer, all of 1-1, arrows/space/F. No camera. This is already a real game</td></tr>
+        <tr><td class="ms">M1</td><td>Playable on keyboard</td><td class="num">2</td><td>Platformer core plus <strong>beats 1&ndash;4 only</strong> (auto-run, two racks, one enemy), arrows/space/F. No camera. Enough to know whether jumping feels good</td></tr>
         <tr><td class="ms">M2</td><td>Intent bus wired</td><td class="num">1</td><td>Gestures drive the same intents. Both inputs live simultaneously</td></tr>
         <tr><td class="ms">M3</td><td>Puppet rig</td><td class="num">1</td><td>Dario's arms follow yours continuously, not just on trigger</td></tr>
         <tr><td class="ms">M4</td><td>Art, audio, juice</td><td class="num">2</td><td>Sprites, blips, screen shake, particles, "REFACTORED" popups</td></tr>
@@ -469,7 +467,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
       <tbody>
         <tr><td>Latency makes jumps feel unfair</td><td>Coyote time, jump buffering, forgiving level design. Measure at M0 before committing</td></tr>
-        <tr><td>Arm fatigue</td><td>Edge-triggered jump, 80-second course, sit-down keyboard mode always available</td></tr>
+        <tr><td>Arm fatigue</td><td>Edge-triggered jump, 85-second course, sit-down keyboard mode always available</td></tr>
         <tr><td>Lighting and framing</td><td>Framing guide box in the PiP, explicit "stand about six feet back, waist up" on the title screen</td></tr>
         <tr><td>Laptop thermals</td><td>Cap inference at 30fps, GPU delegate, decoupled loops</td></tr>
         <tr><td>Standing requirement</td><td>Seated calibration profile; one-arm mode where either wrist above the shoulder jumps</td></tr>
@@ -488,7 +486,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
     <div class="tw"><table>
       <thead><tr><th></th><th>Decision</th><th>Consequence</th></tr></thead>
       <tbody>
-        <tr><td>Scope</td><td>One perfect 80-second course</td><td>The nine-day estimate holds. No second level &mdash; time goes into feel, not content</td></tr>
+        <tr><td>Scope</td><td>One polished 85-second course</td><td>The nine-day estimate holds. No second level &mdash; time goes into feel, not content</td></tr>
         <tr><td>Audience</td><td>In-person demo first, harden later</td><td>Onboarding stays minimal for v1; you are the onboarding. M5's playtest decides whether cold-start work is worth doing</td></tr>
         <tr><td>Enemy hit</td><td>Poof + &quot;REFACTORED&quot; popup</td><td>Half a day. Convert-to-follower stays on the post-M6 list</td></tr>
         <tr><td>Throw</td><td>Fixed arc, no aiming</td><td>Gesture stays binary and reliable to detect. <code>armAngle</code> is still in the intent struct, so aiming costs nothing to revisit</td></tr>
