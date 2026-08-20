@@ -91,12 +91,15 @@ tiring, and it competes for the same body signal the jump needs. Locking the
 run frees your arms to do the two things that matter. Lean-to-modulate-speed is
 a good v1.5 addition once the core feels solid.
 
-**Why jump is an edge, not a hold.** Holding your arms overhead is exhausting
-inside of a minute. Jump fires on the *transition* into arms-up, and your arms
-can come straight back down. This also means variable jump height has to come
-from somewhere else — proposal: how *fast* your arms rise sets the jump
-impulse. Flick up hard for a full jump, drift up for a hop. It reads as natural
-and it's a single derivative you already have.
+**Why jump is an edge, not a hold.** Holding your arms overhead *between* jumps
+is exhausting inside of a minute. Jump fires on the *transition* into arms-up,
+and your arms can come straight back down.
+
+This costs us the reference game's variable jump height, which comes from
+holding the button through the ascent. v1 accepts that and ships a single fixed
+arc — see §11. If it's added later, the mechanism is holding your arms up
+*during the ascent only* (~300ms), which the edge trigger already permits and
+which fatigue does not argue against.
 
 **Four signal-processing rules, or it will feel broken:**
 
@@ -319,15 +322,53 @@ Settled, and now assumed throughout this document:
 | **Scope** | One polished 85-second course | The 9-day estimate holds. No second level; time goes into feel, not content |
 | **Audience** | Build for an in-person demo first, harden later | Onboarding stays minimal for v1 — you are the onboarding. M5's playtest decides whether cold-start work is worth doing |
 | **Enemy hit** | Poof + "REFACTORED" popup | Half a day. The convert-to-follower idea stays on the post-M6 list |
+| **Jump** | Single fixed height, no modulation | One arc means one thing to blame on a missed jump, and reachability becomes a design constant. Hold-during-ascent is the upgrade path if M0 supports it |
 | **Throw** | Fixed arc, no aiming | Gesture stays binary and easy to detect. `armAngle` is still in the intent struct, so aiming costs nothing to revisit |
 
-### The one question left is empirical
+### Jump height: fixed for v1
 
-**Does variable jump height from arm-raise speed feel natural or twitchy?** This
-isn't a design call — it's a measurement, and M0 answers it in an afternoon.
-Log wrist velocity at the moment of the jump edge across a few dozen jumps and
-look at the spread. If people cluster into two clean modes (flick vs. drift),
-map it. If it's one smear, drop it and give every jump a fixed impulse.
+**v1 ships a single fixed jump arc.** No height modulation.
+
+The reference game has one jump with *continuously* variable height, driven by
+how long the button is held: gravity is reduced while the button is down and the
+character is still rising, and releasing it cuts the arc short. Players
+experience "small jump vs. big jump," but it is really one action sampled along
+a range.
+
+We ship fixed anyway, because our input is already noisy and ~150ms late. Add
+height modulation on top and a missed jump has three possible causes — bad
+gesture, bad timing, bad arm speed — and the player cannot tell which. One jump
+means one thing to blame. It also makes reachability a **constant** for level
+design: with a single arc, "can the player reach it" stops being a question,
+which matters most at the beat-5 bump block, where an unreachable block costs
+the player the entire second verb.
+
+#### If we add it later, use the hold model, not arm speed
+
+An earlier draft of this plan proposed deriving height from **arm-raise
+velocity**, sampled at the instant the gesture fires. That is the worse option:
+beginners raise their arms slowly, so a tentative first-timer gets a weak jump —
+the game punishing hesitation at exactly the moment the player is least equipped
+to understand why.
+
+The better mapping is the reference game's own: **keep reading arm position
+during the ascent.** Arms still up while rising → full jump. Arms come down
+early → cut it short, exactly as releasing the button does. Nothing new to
+detect; arm position is already sampled every frame.
+
+- **The fatigue objection does not apply.** The hold lasts only the length of
+  the ascent, roughly 300ms — not continuously between jumps.
+- **It fails in the right direction.** A player who does nothing deliberate
+  still has their arms up when the ascent ends, so the default is a *full*
+  jump and the short hop is the deliberate act. That is the correct default;
+  most jumps in the course want full height.
+- **Expect low resolution.** Arms drop in 200–300ms against a ~300ms ascent, so
+  in practice this may yield only two outcomes: a flick for a hop, anything
+  else for a full jump. Which is fine — two is what players think they have.
+
+**M0 decides.** Log arm position through the ascent across a few dozen jumps
+and look at whether the release timing separates cleanly. If it does, add the
+hold model after M1. If it doesn't, fixed height is the answer permanently.
 
 ### What "demo first" changes about the build
 

@@ -306,7 +306,8 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <h3>Why auto-run</h3>
       <p>You said "you naturally are moving forward," and auto-run is the right reading of that. Continuous horizontal control from body position is jittery, tiring, and competes for the same body signal the jump needs. Locking the run frees your arms for the two things that matter. Lean-to-modulate-speed is a good addition once the core feels solid.</p>
       <h3>Why jump is an edge, not a hold</h3>
-      <p>Holding your arms overhead is exhausting inside of a minute. Jump fires on the <em>transition</em> into arms-up and your arms come straight back down. That means variable jump height needs another source &mdash; proposal: <strong>how fast your arms rise sets the jump impulse.</strong> Flick up hard for a full jump, drift up for a hop. It reads as natural, and it's a single derivative you already have.</p>
+      <p>Holding your arms overhead <em>between</em> jumps is exhausting inside of a minute. Jump fires on the <em>transition</em> into arms-up and your arms come straight back down.</p>
+      <p>This costs us the reference game's variable jump height, which comes from holding the button through the ascent. v1 accepts that and ships a single fixed arc &mdash; see the decisions section. If it is added later, the mechanism is holding your arms up <em>during the ascent only</em>, roughly 300ms, which the edge trigger already permits and which fatigue does not argue against.</p>
       <h3>Four signal-processing rules, or it will feel broken</h3>
       <ul>
         <li><strong>Smoothing.</strong> One-Euro filter on landmarks &mdash; low-pass but latency-aware. A plain moving average adds enough delay to make jumps feel mushy.</li>
@@ -489,12 +490,24 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
         <tr><td>Scope</td><td>One polished 85-second course</td><td>The nine-day estimate holds. No second level &mdash; time goes into feel, not content</td></tr>
         <tr><td>Audience</td><td>In-person demo first, harden later</td><td>Onboarding stays minimal for v1; you are the onboarding. M5's playtest decides whether cold-start work is worth doing</td></tr>
         <tr><td>Enemy hit</td><td>Poof + &quot;REFACTORED&quot; popup</td><td>Half a day. Convert-to-follower stays on the post-M6 list</td></tr>
+        <tr><td>Jump</td><td>Single fixed height, no modulation</td><td>One arc means one thing to blame on a missed jump, and reachability becomes a design constant. Hold-during-ascent is the upgrade path if M0 supports it</td></tr>
         <tr><td>Throw</td><td>Fixed arc, no aiming</td><td>Gesture stays binary and reliable to detect. <code>armAngle</code> is still in the intent struct, so aiming costs nothing to revisit</td></tr>
       </tbody>
     </table></div>
     <div class="col">
-      <h3>The one question left is empirical</h3>
-      <p><strong>Does variable jump height from arm-raise speed feel natural, or twitchy?</strong> That isn't a design call, it's a measurement &mdash; and M0 answers it in an afternoon. Log wrist velocity at the moment of the jump edge across a few dozen jumps and look at the spread. If people cluster into two clean modes, flick versus drift, map it. If it's one smear, drop it and give every jump a fixed impulse.</p>
+      <h3>Jump height: fixed for v1</h3>
+      <p><strong>v1 ships a single fixed jump arc</strong>, with no height modulation.</p>
+      <p>The reference game has one jump with <em>continuously</em> variable height, driven by how long the button is held: gravity is reduced while the button is down and the character is still rising, and releasing it cuts the arc short. Players experience "small jump versus big jump," but it is really one action sampled along a range.</p>
+      <p>We ship fixed anyway, because our input is already noisy and roughly 150ms late. Add height modulation on top and a missed jump has three possible causes &mdash; bad gesture, bad timing, bad arm speed &mdash; and the player cannot tell which. One jump means one thing to blame. It also makes reachability a <strong>constant</strong> for level design: with a single arc, "can the player reach it" stops being a question, which matters most at the beat-5 bump block, where an unreachable block costs the player the entire second verb.</p>
+      <h3>If we add it later, use the hold model, not arm speed</h3>
+      <p>An earlier draft of this plan proposed deriving height from <strong>arm-raise velocity</strong>, sampled at the instant the gesture fires. That is the worse option: beginners raise their arms slowly, so a tentative first-timer gets a weak jump &mdash; the game punishing hesitation at exactly the moment the player is least equipped to understand why.</p>
+      <p>The better mapping is the reference game's own: <strong>keep reading arm position during the ascent.</strong> Arms still up while rising means a full jump; arms coming down early cuts it short, exactly as releasing the button does. Nothing new to detect &mdash; arm position is already sampled every frame.</p>
+      <ul>
+        <li><strong>The fatigue objection doesn't apply.</strong> The hold lasts only the length of the ascent, roughly 300ms &mdash; not continuously between jumps.</li>
+        <li><strong>It fails in the right direction.</strong> A player who does nothing deliberate still has their arms up when the ascent ends, so the default is a <em>full</em> jump and the short hop is the deliberate act. That's the correct default; most jumps in the course want full height.</li>
+        <li><strong>Expect low resolution.</strong> Arms drop in 200&ndash;300ms against a ~300ms ascent, so in practice this may yield only two outcomes: a flick for a hop, anything else for a full jump. Which is fine &mdash; two is what players think they have.</li>
+      </ul>
+      <p><strong>M0 decides.</strong> Log arm position through the ascent across a few dozen jumps and see whether release timing separates cleanly. If it does, add the hold model after M1. If it doesn't, fixed height is the answer permanently.</p>
       <h3>What "demo first" defers</h3>
       <p>Because the target is a room with you standing in it, three things get deferred rather than cut:</p>
       <ul>
