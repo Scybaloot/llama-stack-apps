@@ -81,7 +81,7 @@ calibration, so it works whether you're two feet or eight feet from the camera.
 |---|---|---|
 | **Run** | Automatic — Dario always runs right | Run cycle |
 | **Jump** | Rising edge: both wrists cross above the shoulder line | Arms shoot up, jump |
-| **Throw** | Either wrist extends past its shoulder horizontally, at roughly shoulder height | Arms thrust forward, Claude Code sprite fires on a **fixed arc** |
+| **Throw** | Either wrist extends past its shoulder horizontally, at roughly shoulder height | Arms thrust forward. Before the power-up: animation plays, nothing fires. After: Claude Code sprite on a **fixed arc** |
 | **Crouch** *(v1.5)* | Head drops below 0.85× calibrated standing height | Duck |
 | **Speed** *(v1.5)* | Shoulder midpoint offset from calibrated center | Lean forward to sprint, back to slow |
 
@@ -157,12 +157,54 @@ better for anything you might eventually share.
 | Clouds | **Clouds** | Jumpable platforms with token arcs above |
 | Flagpole | **DEPLOY flag** | End of course, score tally |
 
-**The power-up is the tutorial.** Before you collect the Claude Code item,
-sticking your arms out does nothing but a small shrug animation. The moment you
-grab it, the coach prompt says "ARMS OUT!" and the gesture becomes live. You
-learn the control exactly when it becomes useful, and you never read an
-instruction screen. This is the single best structural idea in the motif list —
-build the level around it.
+### The power-up is the tutorial
+
+One gesture carries three meanings, sequenced by game state. Nothing is ever
+explained.
+
+| When | Arms out means | What the player sees |
+|---|---|---|
+| 0:00–0:32 | A throw that fails | The **full throw animation** — windup, arms punch out — and nothing comes out. Dario looks at his own empty hands |
+| 0:32 | **A reach** | He stretches, catches the Claude Code item mid-air |
+| 0:32–end | A throw that works | Identical motion, sprite fires |
+
+**Why the failed throw plays the real animation.** A substitute animation (a
+shrug, a head-shake) reads as *the game didn't understand you*. The full throw
+with an empty result reads as *the game understood perfectly; Dario can't do it
+yet*. The failure becomes the character's limitation rather than the system's —
+diegetic, and funny instead of broken.
+
+It also drills the motor pattern. Every failed attempt is a rep, so the first
+real throw is actually the player's tenth throw and the first one that works.
+
+**The gesture that fails is the gesture that fixes it.** Reaching out is how you
+grab the power-up. The motion that's been failing for thirty seconds is the
+motion that acquires the cure — a tighter loop than Mario's, where you simply
+walk into the flower.
+
+Three implementation notes, each of which the design breaks without:
+
+- **The power-up cannot be on a cloud.** Arms-up and arms-out are mutually
+  exclusive body positions, so "jump to it, then reach for it" is a hard combo
+  thirty seconds into a first run. Float it at arm height on flat ground during
+  a calm stretch.
+- **Touching it must also work.** Fallback pickup on collision, so nobody runs
+  past it and gets stuck without the ability. But give the reach version the
+  full flourish — catch, freeze frame, chime — so reaching is clearly the right
+  way without being the only way.
+- **The confused beat has to diminish.** Full reaction on the first two
+  attempts, a smaller one for the next few, then just the animation with no
+  reaction. Twenty identical confused looks is grating.
+
+**Safeguard:** light the HUD's THROW lamp even while the ability is locked.
+Dario reacting already implies "input received," but the lamp makes it explicit.
+No player should ever conclude their camera is broken when the game is only
+saying *not yet*.
+
+**Aerial throws still work,** and this is why the edge-triggered jump was the
+right call. Arms drop back to neutral immediately after the flick, so you can
+jump and *then* punch out mid-air. A hold-to-jump design would have made the two
+gestures genuinely exclusive.
 
 **One Dario, not brothers.** Single player. Two-player couch mode (two people in
 frame, MediaPipe tracks both) is a genuinely easy stretch goal, but it's a
@@ -179,7 +221,7 @@ Roughly 80 seconds, one screen tall, scrolling right. Seven beats:
 | 1 | 0–8s | **Calibration porch.** Flat ground, no hazards. "RAISE BOTH HANDS" → Dario hops | Jump, at zero risk |
 | 2 | 8–20s | **First racks.** Two single server racks, wide landings | Jump timing |
 | 3 | 20–32s | **First hallucination.** One enemy walking at you — stomp or jump over | Threat reading |
-| 4 | 32–40s | **Claude Code power-up** on a low cloud. "ARMS OUT!" Two enemies to practice on | Throw |
+| 4 | 32–40s | **Claude Code power-up** floating at arm height on flat ground. Reach to catch it. "ARMS OUT!" Two enemies to practice on | Throw |
 | 5 | 40–55s | **Pit + cloud chain.** Three clouds over a gap, token arc above | Consecutive jumps |
 | 6 | 55–70s | **Paperclip pair + double rack.** The one real difficulty spike | Both gestures together |
 | 7 | 70–80s | **DEPLOY flag.** Score tally, "RUN AGAIN?" | — |

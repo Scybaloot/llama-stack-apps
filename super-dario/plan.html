@@ -297,7 +297,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <tbody>
         <tr><td>Run</td><td>Automatic &mdash; Dario always runs right</td><td>Run cycle</td></tr>
         <tr><td>Jump</td><td>Rising edge: both wrists cross above the shoulder line</td><td>Arms shoot up, jump</td></tr>
-        <tr><td>Throw</td><td>Either wrist extends past its shoulder horizontally, near shoulder height</td><td>Arms thrust forward, sprite fires on a <strong>fixed arc</strong></td></tr>
+        <tr><td>Throw</td><td>Either wrist extends past its shoulder horizontally, near shoulder height</td><td>Arms thrust forward. Before the power-up the animation plays and nothing fires; after, a sprite on a <strong>fixed arc</strong></td></tr>
         <tr><td>Crouch <span class="num">v1.5</span></td><td>Head drops below 0.85&times; calibrated standing height</td><td>Duck</td></tr>
         <tr><td>Speed <span class="num">v1.5</span></td><td>Shoulder midpoint offset from calibrated center</td><td>Lean forward to sprint, back to slow</td></tr>
       </tbody>
@@ -360,7 +360,35 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
     </table></div>
     <div class="call">
       <p class="call-k">BUILD THE LEVEL AROUND THIS ONE</p>
-      <p><strong>The power-up is the tutorial.</strong> Before you collect the Claude Code item, sticking your arms out does nothing but a small shrug animation. The moment you grab it, the coach prompt reads "ARMS OUT!" and the gesture goes live. You learn the control exactly when it becomes useful, and you never read an instruction screen.</p>
+      <p><strong>The power-up is the tutorial.</strong> One gesture carries three meanings, sequenced by game state. Nothing is ever explained to the player.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>When</th><th>Arms out means</th><th>What the player sees</th></tr></thead>
+      <tbody>
+        <tr><td class="num">0:00&ndash;0:32</td><td>A throw that fails</td><td>The <strong>full throw animation</strong> &mdash; windup, arms punch out &mdash; and nothing comes out. Dario looks at his own empty hands</td></tr>
+        <tr><td class="num">0:32</td><td>A reach</td><td>He stretches and catches the Claude Code item mid-air</td></tr>
+        <tr><td class="num">0:32&ndash;end</td><td>A throw that works</td><td>Identical motion, sprite fires</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <h3>Why the failed throw plays the real animation</h3>
+      <p>A substitute animation &mdash; a shrug, a head-shake &mdash; reads as <em>the game didn't understand you</em>. The full throw with an empty result reads as <em>the game understood perfectly; Dario can't do it yet</em>. The failure becomes the character's limitation rather than the system's: diegetic, and funny instead of broken.</p>
+      <p>It also drills the motor pattern. Every failed attempt is a rep, so the first real throw is actually the player's tenth throw &mdash; and the first one that works.</p>
+      <h3>The gesture that fails is the gesture that fixes it</h3>
+      <p>Reaching out is how you grab the power-up. The motion that has been failing for thirty seconds is the motion that acquires the cure &mdash; a tighter loop than Mario's, where you simply walk into the flower.</p>
+      <p>Three implementation notes, each of which the design breaks without:</p>
+      <ul>
+        <li><strong>The power-up cannot sit on a cloud.</strong> Arms-up and arms-out are mutually exclusive body positions, so "jump to it, then reach for it" is a hard combo thirty seconds into a first run. Float it at arm height on flat ground during a calm stretch.</li>
+        <li><strong>Touching it must also work.</strong> Fallback pickup on collision, so nobody runs past it and gets stranded without the ability &mdash; but give the reach version the full flourish (catch, freeze frame, chime) so reaching is clearly the right way without being the only way.</li>
+        <li><strong>The confused beat has to diminish.</strong> Full reaction on the first two attempts, smaller for the next few, then just the animation. Twenty identical confused looks is grating.</li>
+      </ul>
+    </div>
+    <div class="call">
+      <p class="call-k">SAFEGUARD</p>
+      <p>Light the HUD's THROW lamp <em>even while the ability is locked</em>. Dario reacting already implies "input received," but the lamp makes it explicit. No player should ever conclude their camera is broken when the game is only saying <em>not yet</em>.</p>
+    </div>
+    <div class="col">
+      <p><strong>Aerial throws still work</strong> &mdash; and this is why the edge-triggered jump was the right call. Arms drop back to neutral immediately after the flick, so you can jump and <em>then</em> punch out mid-air. A hold-to-jump design would have made the two gestures genuinely exclusive.</p>
     </div>
     <div class="col">
       <p><strong>One Dario, not brothers.</strong> Single player. Two-player couch mode &mdash; two people in frame, the pose model tracks both &mdash; is a genuinely easy stretch goal, but it stays a stretch goal.</p>
@@ -378,7 +406,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
         <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">0&ndash;8s</span><span class="beat-n">Calibration porch</span><span class="beat-x">Flat ground, no hazards. "RAISE BOTH HANDS" &rarr; Dario hops. Teaches jump at zero risk</span></div>
         <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">8&ndash;20s</span><span class="beat-n">First racks</span><span class="beat-x">Two single server racks, wide landings. Jump timing</span></div>
         <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">20&ndash;32s</span><span class="beat-n">First hallucination</span><span class="beat-x">One enemy walking at you &mdash; stomp or jump over<br><span class="flag">CHECKPOINT</span></span></div>
-        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">32&ndash;40s</span><span class="beat-n">Claude Code power-up</span><span class="beat-x">On a low cloud. "ARMS OUT!" Two enemies to practice on. Teaches throw</span></div>
+        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">32&ndash;40s</span><span class="beat-n">Claude Code power-up</span><span class="beat-x">Floating at arm height on flat ground &mdash; reach to catch it. "ARMS OUT!" Two enemies to practice on</span></div>
         <div class="beat" style="flex:15"><div class="beat-bar"></div><span class="beat-t">40&ndash;55s</span><span class="beat-n">Pit + cloud chain</span><span class="beat-x">Three clouds over a gap, token arc above<br><span class="flag">CHECKPOINT</span></span></div>
         <div class="beat is-peak" style="flex:15"><div class="beat-bar"></div><span class="beat-t">55&ndash;70s</span><span class="beat-n">Paperclip pair + double rack</span><span class="beat-x">The one real difficulty spike. Both gestures together</span></div>
         <div class="beat is-end" style="flex:10"><div class="beat-bar"></div><span class="beat-t">70&ndash;80s</span><span class="beat-n">DEPLOY flag</span><span class="beat-x">Score tally, "RUN AGAIN?"</span></div>
@@ -532,7 +560,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   frame(IDLE,'IDLE / RUN',false);
   if(reduce) return;
 
-  var steps=[[IDLE,'IDLE / RUN',false,2000],[JUMP,'ARMS UP = JUMP',false,1700],[THROW,'ARMS OUT = THROW',true,1700]];
+  var steps=[[IDLE,'IDLE / RUN',false,1900],[JUMP,'ARMS UP = JUMP',false,1600],[THROW,'LOCKED: NOTHING FIRES',false,1900],[THROW,'ARMS OUT = THROW',true,1900]];
   var i=0;
   (function tick(){
     var s=steps[i];
