@@ -307,7 +307,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <p>You said "you naturally are moving forward," and auto-run is the right reading of that. Continuous horizontal control from body position is jittery, tiring, and competes for the same body signal the jump needs. Locking the run frees your arms for the two things that matter. Lean-to-modulate-speed is a good addition once the core feels solid.</p>
       <h3>Why jump is an edge, not a hold</h3>
       <p>Holding your arms overhead <em>between</em> jumps is exhausting inside of a minute. Jump fires on the <em>transition</em> into arms-up and your arms come straight back down.</p>
-      <p>This costs us the reference game's variable jump height, which comes from holding the button through the ascent. v1 accepts that and ships a single fixed arc &mdash; see the decisions section. If it is added later, the mechanism is holding your arms up <em>during the ascent only</em>, roughly 300ms, which the edge trigger already permits and which fatigue does not argue against.</p>
+      <p>This costs us the reference game's variable jump height, which comes from holding the button through the ascent. v1 accepts that and ships a single fixed arc &mdash; see the decisions section below. If it is added later, the mechanism is holding your arms up <em>during the ascent only</em>, roughly 300ms, which the edge trigger already permits and which fatigue does not argue against.</p>
       <h3>Four signal-processing rules, or it will feel broken</h3>
       <ul>
         <li><strong>Smoothing.</strong> One-Euro filter on landmarks &mdash; low-pass but latency-aware. A plain moving average adds enough delay to make jumps feel mushy.</li>
@@ -442,7 +442,67 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   </section>
 
   <section>
-    <p class="sec-k">08 &middot; SEQUENCE</p>
+    <p class="sec-k">08 &middot; THE GATE</p>
+    <h2>M0 &mdash; measuring whether this works at all</h2>
+    <div class="col">
+      <p>Half a day, and it produces no game code: camera, landmarker, skeleton overlay, gesture events to the console. Its only job is to produce a number.</p>
+      <h3>What to measure</h3>
+      <p><strong>System latency only</strong> &mdash; from your wrists crossing the shoulder line to a pixel changing on screen. That's the part that's fixable.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Stage</th><th>Typical</th></tr></thead>
+      <tbody>
+        <tr><td>Camera capture + exposure</td><td class="num">16&ndash;33 ms</td></tr>
+        <tr><td>Pose inference (GPU delegate, lite model)</td><td class="num">10&ndash;30 ms</td></tr>
+        <tr><td>One-Euro filter delay</td><td class="num">10&ndash;30 ms</td></tr>
+        <tr><td>Game loop + render</td><td class="num">~16 ms</td></tr>
+        <tr><td>Display</td><td class="num">10&ndash;20 ms</td></tr>
+        <tr><td>Total</td><td class="num">~60&ndash;130 ms</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <p>Do <em>not</em> count the time your arm takes to travel upward. That's human physics rather than system latency, and it isn't a defect &mdash; the player's intent begins when they start moving, so the travel time is already spent by the time the crossing fires.</p>
+      <h3>How to measure it</h3>
+      <p>Film yourself and the screen together on a phone at 240fps. Count frames between your wrists crossing shoulder height and Dario leaving the ground. Each frame is 4.2ms. Ten jumps, take the median.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Result</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="num">under 100 ms</td><td>Good. Proceed as planned</td></tr>
+        <tr><td class="num">100&ndash;180 ms</td><td>Workable. Coyote time and jump buffering absorb this &mdash; proceed, but treat both as required rather than optional</td></tr>
+        <tr><td class="num">180&ndash;250 ms</td><td>Marginal. Drop to a lighter model, cap inference at 30fps, loosen the filter, re-measure before proceeding</td></tr>
+        <tr><td class="num">over 250 ms</td><td>Rethink. The gestures may need to become slower and more deliberate, or the game slower to match</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call">
+      <p class="call-k">RECORD IT, DON'T BUILD IT</p>
+      <p>If the number is marginal, you can trigger <strong>predictively</strong> &mdash; firing the jump on detected upward wrist velocity before the wrists actually cross the shoulder line, buying 50&ndash;80ms. It raises false positives, so it's an M0 finding to write down, not a v1 feature.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">09 &middot; FOUNDATION</p>
+    <h2>The pixel grid</h2>
+    <div class="col">
+      <p>Pinned before any game code, because every other number is expressed in it.</p>
+    </div>
+    <div class="tw"><table>
+      <tbody>
+        <tr><td>Internal resolution</td><td><strong>256 &times; 240</strong></td></tr>
+        <tr><td>Tile size</td><td><strong>16 &times; 16</strong> &mdash; a 16 &times; 15 tile playfield</td></tr>
+        <tr><td>Dario, small</td><td>16 &times; 16, one tile</td></tr>
+        <tr><td>Dario, big</td><td>16 &times; 32, two tiles</td></tr>
+        <tr><td>Scaling</td><td>Integer only (2&times;, 3&times;, 4&times;) with <code>image-rendering: pixelated</code>, letterboxed to the window</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <p>Never scale by a non-integer factor. Fractional scaling on pixel art produces uneven pixel widths, and it looks wrong in a way people notice without being able to say why.</p>
+      <p>All physics constants get expressed in <strong>tiles per second</strong> and tiles per second squared rather than pixels, so the whole game rescales if the grid ever changes.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">10 &middot; SEQUENCE</p>
     <h2>Milestones</h2>
     <div class="tw"><table>
       <thead><tr><th></th><th>Milestone</th><th>Days</th><th>Done when</th></tr></thead>
@@ -462,7 +522,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   </section>
 
   <section>
-    <p class="sec-k">09 &middot; RISKS</p>
+    <p class="sec-k">11 &middot; RISKS</p>
     <h2>What could make this not fun</h2>
     <div class="tw"><table>
       <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
@@ -482,7 +542,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   </section>
 
   <section>
-    <p class="sec-k">10 &middot; DECIDED</p>
+    <p class="sec-k">12 &middot; DECIDED</p>
     <h2>Locked, and assumed everywhere above</h2>
     <div class="tw"><table>
       <thead><tr><th></th><th>Decision</th><th>Consequence</th></tr></thead>

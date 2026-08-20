@@ -97,7 +97,7 @@ and your arms can come straight back down.
 
 This costs us the reference game's variable jump height, which comes from
 holding the button through the ascent. v1 accepts that and ships a single fixed
-arc — see §11. If it's added later, the mechanism is holding your arms up
+arc — see §13. If it's added later, the mechanism is holding your arms up
 *during the ascent only* (~300ms), which the edge trigger already permits and
 which fatigue does not argue against.
 
@@ -273,7 +273,77 @@ super-dario/
 
 ---
 
-## 8. Milestones
+## 8. M0 — the gate
+
+M0 is half a day and produces no game code: camera, landmarker, skeleton
+overlay, gesture events to the console. Its only job is to produce a number.
+
+### What to measure
+
+**System latency only** — from your wrists crossing the shoulder line to a pixel
+changing on screen. This is the part that's fixable. It is roughly:
+
+| Stage | Typical |
+|---|---|
+| Camera capture + exposure | 16–33ms |
+| Pose inference (GPU delegate, lite model) | 10–30ms |
+| One-Euro filter delay | 10–30ms |
+| Game loop + render | ~16ms |
+| Display | 10–20ms |
+| **Total** | **~60–130ms** |
+
+Do **not** count the time your arm takes to travel up. That is human physics,
+not system latency, and it isn't a defect — the player's intent begins when they
+start moving, so the travel time is already spent by the time the crossing
+fires.
+
+### How to measure it
+
+Film yourself and the screen together on a phone at 240fps. Count frames between
+your wrists crossing shoulder height and Dario leaving the ground. Each frame is
+4.2ms. Ten jumps, take the median.
+
+### Pass marks
+
+| Result | Verdict |
+|---|---|
+| **under 100ms** | Good. Proceed as planned |
+| **100–180ms** | Workable. Coyote time and jump buffering absorb this — proceed, but treat those as required, not optional |
+| **180–250ms** | Marginal. Drop to a lighter model, cap inference at 30fps, loosen the filter. Re-measure before proceeding |
+| **over 250ms** | Rethink. The gesture set may need to become slower and more deliberate, or the game slower to match |
+
+### One optimization to note, not to build
+
+If the number is marginal, you can trigger **predictively** — fire the jump on
+detected upward wrist *velocity* before the wrists actually cross the shoulder
+line, buying 50–80ms. It raises false positives, so it is an M0 finding to
+record, not a v1 feature.
+
+---
+
+## 9. The pixel grid
+
+Pinned before any game code, because every other number is expressed in it.
+
+| | |
+|---|---|
+| Internal resolution | **256 × 240** |
+| Tile size | **16 × 16** → a 16 × 15 tile playfield |
+| Dario (small) | 16 × 16, one tile |
+| Dario (big) | 16 × 32, two tiles |
+| Scaling | Integer only (2×, 3×, 4×) with `image-rendering: pixelated`, letterboxed to the window |
+
+Never scale by a non-integer factor — fractional scaling on pixel art produces
+uneven pixel widths, and it looks wrong in a way people notice without being
+able to say why.
+
+All physics constants get expressed in **tiles per second** and **tiles per
+second squared**, not pixels, so the whole game rescales if the grid ever
+changes.
+
+---
+
+## 10. Milestones
 
 | | Milestone | Days | Done when |
 |---|---|---|---|
@@ -291,7 +361,7 @@ any camera is involved.
 
 ---
 
-## 9. Risks
+## 11. Risks
 
 | Risk | Mitigation |
 |---|---|
@@ -304,7 +374,7 @@ any camera is involved.
 
 ---
 
-## 10. Ground rules
+## 12. Ground rules
 
 Two things worth settling before this goes anywhere beyond your laptop: draw
 all sprites from scratch rather than lifting Nintendo assets, and check with
@@ -313,7 +383,7 @@ different thing when it's shared than when it's a demo on your own machine.
 
 ---
 
-## 11. Decisions
+## 13. Decisions
 
 Settled, and now assumed throughout this document:
 
