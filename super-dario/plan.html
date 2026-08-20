@@ -198,10 +198,6 @@ pre{
 }
 pre b{color:var(--accent-ink);font-weight:400}
 
-.q{counter-reset:q;list-style:none;padding:0;max-width:68ch}
-.q li{counter-increment:q;display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--rule);margin:0}
-.q li::before{content:counter(q,decimal-leading-zero);font-family:Silkscreen,monospace;font-size:12px;color:var(--accent-ink)}
-
 footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-faint)}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -214,7 +210,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
     <div class="hud-item"><span class="hud-k">RUN TIME</span><span class="hud-v">80 SEC</span></div>
     <div class="hud-item"><span class="hud-k">MILESTONES</span><span class="hud-v">M0-M6</span></div>
     <div class="hud-item"><span class="hud-k">ESTIMATE</span><span class="hud-v is-gold">9 DAYS</span></div>
-    <div class="hud-item"><span class="hud-k">STATUS</span><span class="hud-v">PLAN ONLY</span></div>
+    <div class="hud-item"><span class="hud-k">STATUS</span><span class="hud-v">SPEC LOCKED</span></div>
   </div>
 </div>
 
@@ -301,7 +297,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
       <tbody>
         <tr><td>Run</td><td>Automatic &mdash; Dario always runs right</td><td>Run cycle</td></tr>
         <tr><td>Jump</td><td>Rising edge: both wrists cross above the shoulder line</td><td>Arms shoot up, jump</td></tr>
-        <tr><td>Throw</td><td>Either wrist extends past its shoulder horizontally, near shoulder height</td><td>Arms thrust forward, sprite fires</td></tr>
+        <tr><td>Throw</td><td>Either wrist extends past its shoulder horizontally, near shoulder height</td><td>Arms thrust forward, sprite fires on a <strong>fixed arc</strong></td></tr>
         <tr><td>Crouch <span class="num">v1.5</span></td><td>Head drops below 0.85&times; calibrated standing height</td><td>Duck</td></tr>
         <tr><td>Speed <span class="num">v1.5</span></td><td>Shoulder midpoint offset from calibrated center</td><td>Lean forward to sprint, back to slow</td></tr>
       </tbody>
@@ -429,7 +425,7 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
         <tr><td class="ms">M2</td><td>Intent bus wired</td><td class="num">1</td><td>Gestures drive the same intents. Both inputs live simultaneously</td></tr>
         <tr><td class="ms">M3</td><td>Puppet rig</td><td class="num">1</td><td>Dario's arms follow yours continuously, not just on trigger</td></tr>
         <tr><td class="ms">M4</td><td>Art, audio, juice</td><td class="num">2</td><td>Sprites, blips, screen shake, particles, "REFACTORED" popups</td></tr>
-        <tr><td class="ms">M5</td><td>Onboarding + tuning</td><td class="num">1.5</td><td>Calibration screen, sensitivity slider, coach prompts. <strong>Playtest with three people who've never seen it</strong></td></tr>
+        <tr><td class="ms">M5</td><td>Onboarding + tuning</td><td class="num">1.5</td><td>Calibration screen, sensitivity slider, coach prompts. <strong>Playtest with three people who've never seen it &mdash; the gate for whether cold-start onboarding is worth building</strong></td></tr>
         <tr><td class="ms">M6</td><td>Polish</td><td class="num">1</td><td>Title screen, score, restart flow</td></tr>
       </tbody>
     </table></div>
@@ -459,18 +455,32 @@ footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spac
   </section>
 
   <section>
-    <p class="sec-k">10 &middot; OVER TO YOU</p>
-    <h2>Open questions</h2>
-    <ol class="q">
-      <li><span><strong>Variable jump height from arm speed</strong> &mdash; natural, or too twitchy? M0 answers this cheaply.</span></li>
-      <li><span><strong>Does the throw need aiming?</strong> Arm angle could set the projectile arc &mdash; more expressive, harder to control. Fixed arc for v1?</span></li>
-      <li><span><strong>Poof or convert?</strong> A "REFACTORED" enemy that flips sides and follows you is more charming, and more work.</span></li>
-      <li><span><strong>How long is a run?</strong> Eighty seconds is a demo. Does this need three courses, or is one perfect course the goal?</span></li>
-      <li><span><strong>Where does it get shown?</strong> A demo you run for people is a very different build from something people load cold in a browser &mdash; the second needs far more onboarding.</span></li>
-    </ol>
+    <p class="sec-k">10 &middot; DECIDED</p>
+    <h2>Locked, and assumed everywhere above</h2>
+    <div class="tw"><table>
+      <thead><tr><th></th><th>Decision</th><th>Consequence</th></tr></thead>
+      <tbody>
+        <tr><td>Scope</td><td>One perfect 80-second course</td><td>The nine-day estimate holds. No second level &mdash; time goes into feel, not content</td></tr>
+        <tr><td>Audience</td><td>In-person demo first, harden later</td><td>Onboarding stays minimal for v1; you are the onboarding. M5's playtest decides whether cold-start work is worth doing</td></tr>
+        <tr><td>Enemy hit</td><td>Poof + &quot;REFACTORED&quot; popup</td><td>Half a day. Convert-to-follower stays on the post-M6 list</td></tr>
+        <tr><td>Throw</td><td>Fixed arc, no aiming</td><td>Gesture stays binary and reliable to detect. <code>armAngle</code> is still in the intent struct, so aiming costs nothing to revisit</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <h3>The one question left is empirical</h3>
+      <p><strong>Does variable jump height from arm-raise speed feel natural, or twitchy?</strong> That isn't a design call, it's a measurement &mdash; and M0 answers it in an afternoon. Log wrist velocity at the moment of the jump edge across a few dozen jumps and look at the spread. If people cluster into two clean modes, flick versus drift, map it. If it's one smear, drop it and give every jump a fixed impulse.</p>
+      <h3>What "demo first" defers</h3>
+      <p>Because the target is a room with you standing in it, three things get deferred rather than cut:</p>
+      <ul>
+        <li><strong>Camera-permission priming</strong> &mdash; a cold-load player needs to be told why the browser is about to ask for their webcam. You can just say it out loud.</li>
+        <li><strong>Framing and lighting tutorial</strong> &mdash; replaced by you pointing at the floor and saying "stand about there."</li>
+        <li><strong>Per-body threshold auto-tuning</strong> &mdash; v1 ships one sensitivity slider instead of adapting to each player.</li>
+      </ul>
+      <p>All three sit behind the same M5 gate. If three strangers can play it without coaching, harden it into a link. If they can't, the problem is the gestures rather than the onboarding &mdash; and that is worth knowing before spending four days on polish.</p>
+    </div>
   </section>
 
-  <footer>SUPER DARIO BROS. &middot; PLAN v1 &middot; NO CODE WRITTEN YET</footer>
+  <footer>SUPER DARIO BROS. &middot; PLAN v2 &middot; SPEC LOCKED &middot; NO CODE WRITTEN YET</footer>
 </div>
 
 <script>

@@ -81,7 +81,7 @@ calibration, so it works whether you're two feet or eight feet from the camera.
 |---|---|---|
 | **Run** | Automatic — Dario always runs right | Run cycle |
 | **Jump** | Rising edge: both wrists cross above the shoulder line | Arms shoot up, jump |
-| **Throw** | Either wrist extends past its shoulder horizontally, at roughly shoulder height | Arms thrust forward, Claude Code sprite fires |
+| **Throw** | Either wrist extends past its shoulder horizontally, at roughly shoulder height | Arms thrust forward, Claude Code sprite fires on a **fixed arc** |
 | **Crouch** *(v1.5)* | Head drops below 0.85× calibrated standing height | Duck |
 | **Speed** *(v1.5)* | Shoulder midpoint offset from calibrated center | Lean forward to sprint, back to slow |
 
@@ -146,7 +146,7 @@ better for anything you might eventually share.
 | Mario | Super Dario | Notes |
 |---|---|---|
 | Mario | **Dario** | 8-bit, blue sweater, dark curly hair. Deliberately not a red hat and overalls — the sweater reads as him anyway |
-| Fireball | **Claude Code sprite** | Little terminal window with a blinking cursor. Arcs and bounces. On hit: enemy poofs, "REFACTORED" pops up |
+| Fireball | **Claude Code sprite** | Little terminal window with a blinking cursor. Fixed bouncing arc, no aiming. On hit: enemy poofs, "REFACTORED" pops up |
 | Goomba | **Hallucination** | Wobbly mushroom, walks left, one-hit stomp. Kept as a mushroom per your call |
 | Koopa | **Paperclip** | 8-bit paperclip with legs. Stomp it and it curls into a coil you can kick down the lane |
 | Green pipe | **Server rack** | Same silhouette, same jump affordance, blinking LEDs. Enterable later for bonus rooms |
@@ -230,7 +230,7 @@ super-dario/
 | **M2** | Intent bus wired | 1 | Gestures drive the same intents. Both inputs live simultaneously |
 | **M3** | Puppet rig | 1 | Dario's arms follow yours continuously, not just on trigger |
 | **M4** | Art, audio, juice | 2 | Sprites, blips, screen shake, particles, "REFACTORED" popups |
-| **M5** | Onboarding + tuning | 1.5 | Calibration screen, sensitivity slider, coach prompts. **Playtest with three people who have never seen it** |
+| **M5** | Onboarding + tuning | 1.5 | Calibration screen, sensitivity slider, coach prompts. **Playtest with three people who have never seen it — this is the gate for whether cold-start onboarding is worth building** |
 | **M6** | Polish | 1 | Title screen, score, restart flow |
 
 ~9 days of focused work. M0 and M1 are the ones that de-risk everything: M0
@@ -261,10 +261,37 @@ different thing when it's shared than when it's a demo on your own machine.
 
 ---
 
-## 11. Open questions
+## 11. Decisions
 
-1. **Variable jump height from arm speed** — natural, or too twitchy? M0 answers this.
-2. **Does the throw need aiming?** Arm angle could set the projectile arc — expressive, but harder. Fixed arc for v1?
-3. **Enemy defeat: poof or convert?** A "REFACTORED" enemy that flips sides and follows you is more charming and more work.
-4. **How long is a run?** 80 seconds is a demo. Does it need three courses, or is one perfect course the goal?
-5. **Where does this get shown?** A demo you run for people is a different build than something people load in a browser cold — the second needs much more onboarding.
+Settled, and now assumed throughout this document:
+
+| | Decision | Consequence |
+|---|---|---|
+| **Scope** | One perfect 80-second course | The 9-day estimate holds. No second level; time goes into feel, not content |
+| **Audience** | Build for an in-person demo first, harden later | Onboarding stays minimal for v1 — you are the onboarding. M5's playtest decides whether cold-start work is worth doing |
+| **Enemy hit** | Poof + "REFACTORED" popup | Half a day. The convert-to-follower idea stays on the post-M6 list |
+| **Throw** | Fixed arc, no aiming | Gesture stays binary and easy to detect. `armAngle` is still in the intent struct, so aiming costs nothing to revisit |
+
+### The one question left is empirical
+
+**Does variable jump height from arm-raise speed feel natural or twitchy?** This
+isn't a design call — it's a measurement, and M0 answers it in an afternoon.
+Log wrist velocity at the moment of the jump edge across a few dozen jumps and
+look at the spread. If people cluster into two clean modes (flick vs. drift),
+map it. If it's one smear, drop it and give every jump a fixed impulse.
+
+### What "demo first" changes about the build
+
+Because the target is a room with you in it, three things get deferred rather
+than cut:
+
+- **Camera-permission priming** — a cold-load user needs to be told why the
+  browser is about to ask for their webcam. You can just say it out loud.
+- **Framing and lighting tutorial** — replaced by you pointing at the floor and
+  saying "stand about there."
+- **Forgiving-threshold auto-tuning** — v1 can ship one sensitivity slider
+  instead of adapting per body.
+
+All three live behind the same M5 gate. If three strangers can play it without
+coaching, harden it into a link. If they can't, the problem is the gestures, not
+the onboarding — and that's worth knowing before spending four days on polish.
