@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Super Dario — M0 latency spike</title>
+<style>
+  :root{
+    --bg:#0E1117; --panel:#161B24; --line:#262E3B; --line2:#39424F;
+    --ink:#E7EBF3; --soft:#9BA5B7; --faint:#6E7889;
+    --accent:#5C94FC; --gold:#F0B429; --bad:#D3684C; --good:#4FBF7B;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;
+  }
+  code,.mono{font-family:ui-monospace,"JetBrains Mono",Menlo,monospace}
+
+  /* Flash bars: the reference marker for the 240fps measurement.
+     Big and pure white so a single video frame is unambiguous. */
+  .flashes{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#000}
+  .flash{height:96px;background:#000;border:1px solid #1c1c1c;display:flex;
+         align-items:flex-end;justify-content:center;padding-bottom:6px;
+         font:700 11px/1 ui-monospace,monospace;letter-spacing:.18em;color:#333}
+  .flash.on{background:#fff;color:#000}
+
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 18px 60px;
+        display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+  @media(max-width:940px){.wrap{grid-template-columns:1fr}}
+
+  .stage{position:relative;background:#000;border:1px solid var(--line);
+         border-radius:6px;overflow:hidden;aspect-ratio:4/3}
+  .stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .stage video{transform:scaleX(-1)}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+  .panel + .panel{margin-top:14px}
+  h1{font-size:15px;margin:0 0 2px;letter-spacing:-.01em}
+  .sub{color:var(--faint);font-size:12.5px;margin:0 0 14px}
+  h2{font-size:10px;letter-spacing:.16em;color:var(--faint);margin:0 0 10px;font-weight:600}
+
+  .kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:13px}
+  .kv .k{color:var(--soft)}
+  .kv .v{text-align:right;font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .kv .v.hero{color:var(--accent);font-weight:700}
+  .tag{padding:1px 7px;border-radius:3px;font-size:11px}
+  .tag.good{background:rgba(79,191,123,.16);color:var(--good)}
+  .tag.weak,.tag.uncalibrated{background:rgba(240,180,41,.16);color:var(--gold)}
+  .tag.lost,.tag.none{background:rgba(211,104,76,.16);color:var(--bad)}
+
+  button{font:inherit;background:var(--line);color:var(--ink);border:1px solid var(--line2);
+         border-radius:5px;padding:7px 12px;cursor:pointer}
+  button:hover{background:var(--line2)}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #start{background:var(--accent);border-color:var(--accent);color:#08111f;font-weight:700;width:100%;padding:11px}
+  .btns{display:flex;gap:8px;margin-top:12px}
+
+  label.slider{display:grid;grid-template-columns:1fr auto;gap:4px;
+               font-size:12.5px;color:var(--soft);margin-bottom:12px}
+  label.slider input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+  label.slider .n{font-family:ui-monospace,monospace;color:var(--ink)}
+
+  #log{margin-top:8px;font-family:ui-monospace,monospace;font-size:12px}
+  #log .row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;
+            padding:4px 0;border-bottom:1px solid var(--line)}
+  #log .w{color:var(--accent);font-weight:700}
+  #log .row.key .w{color:var(--gold)}
+  #log .s{color:var(--faint)}
+  #log .v{font-variant-numeric:tabular-nums}
+
+  .lamps{display:flex;gap:8px;margin-top:12px}
+  .lamp{flex:1;text-align:center;padding:9px 0;border:1px solid var(--line2);border-radius:5px;
+        font:700 10px/1 ui-monospace,monospace;letter-spacing:.16em;color:var(--faint)}
+  .lamp.lit{background:var(--accent);border-color:var(--accent);color:#08111f}
+
+  #status{font-size:12.5px;color:var(--soft);margin-top:10px}
+  #status.bad{color:var(--bad)}
+  #warn{margin-top:10px;padding:9px 11px;border-radius:5px;font-size:12.5px;
+        background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.3)}
+  ol{margin:0;padding-left:18px;color:var(--soft);font-size:12.5px}
+  ol li{margin-bottom:6px}
+  kbd{background:var(--line);border:1px solid var(--line2);border-bottom-width:2px;
+      border-radius:3px;padding:1px 5px;font:11px ui-monospace,monospace;color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="flashes">
+  <div class="flash" id="flash-jump">JUMP MARKER</div>
+  <div class="flash" id="flash-throw">THROW MARKER</div>
+</div>
+
+<div class="wrap">
+  <div>
+    <div class="stage">
+      <video id="cam" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <div class="panel">
+      <h2>MEASURING</h2>
+      <ol>
+        <li>Stand about six feet back, waist up in frame, then hold still for the 3-second calibration.</li>
+        <li>Film <em>yourself and the screen together</em> on a phone at 240fps.</li>
+        <li>Jump ten times. Then press <kbd>Space</kbd> ten times, arm at rest.</li>
+        <li>In the footage, count frames from your wrists crossing the shoulder line to the marker going white. Each frame is 4.2&nbsp;ms.</li>
+        <li>The <strong>keypress</strong> runs measure display latency alone. Gesture median minus keypress median is the pose pipeline's true cost.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h1>M0 — latency spike</h1>
+      <p class="sub">Camera, pose, gestures. No game.</p>
+      <button id="start">Start camera</button>
+      <div id="status">idle</div>
+      <div id="warn" hidden>Shoulders look small in frame — step closer, or wrists will track poorly.</div>
+      <div class="lamps">
+        <div class="lamp" id="lamp-jump">JUMP</div>
+        <div class="lamp" id="lamp-throw">THROW</div>
+      </div>
+      <div class="btns">
+        <button id="recal">Recalibrate</button>
+        <button id="clear">Clear stats</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>LATENCY (MEDIAN)</h2>
+      <div class="kv">
+        <span class="k">Gesture → paint</span><span class="v hero" id="s-pipe">—</span>
+        <span class="k">Keypress → paint</span><span class="v" id="s-key">—</span>
+        <span class="k">Difference (pose cost)</span><span class="v" id="s-delta">—</span>
+        <span class="k">Inference</span><span class="v" id="s-inf">—</span>
+        <span class="k">Loop fps</span><span class="v" id="s-fps">—</span>
+      </div>
+      <div id="log"></div>
+    </div>
+
+    <div class="panel">
+      <h2>TRACKING</h2>
+      <div class="kv">
+        <span class="k">State</span><span class="v tag none" id="s-track">none</span>
+        <span class="k">Calibration</span><span class="v" id="s-cal">—</span>
+        <span class="k">Lean</span><span class="v" id="s-lean">0.00</span>
+        <span class="k">Camera</span><span class="v" id="s-res">—</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>FILTER</h2>
+      <label class="slider">
+        <span>minCutoff — lower is smoother, more lag</span>
+        <span class="n" id="minCutoff-v">1.5</span>
+        <input type="range" id="minCutoff" min="0.3" max="6" step="0.1" value="1.5">
+      </label>
+      <label class="slider">
+        <span>beta — higher cuts lag when moving fast</span>
+        <span class="n" id="beta-v">0.02</span>
+        <input type="range" id="beta" min="0" max="0.2" step="0.005" value="0.02">
+      </label>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
