@@ -1,0 +1,534 @@
+<title>Super Dario Bros.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=JetBrains+Mono:wght@400;700&family=Silkscreen:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+
+<style>
+:root{
+  --paper:#EDEFF3;
+  --surface:#FFFFFF;
+  --surface-2:#E4E8EF;
+  --ink:#13161D;
+  --ink-soft:#4A5261;
+  --ink-faint:#79818F;
+  --rule:#D3D9E2;
+  --rule-strong:#B6BFCD;
+  --accent:#5C94FC;
+  --accent-ink:#2A55C4;
+  --accent-wash:#DEE8FF;
+  --gold:#F0B429;
+  --gold-ink:#8A6206;
+  --gold-wash:#FBEECE;
+  --brick:#B4472E;
+  --brick-ink:#8E3520;
+  --brick-wash:#F6E0D9;
+  --hud:#13161D;
+  --hud-ink:#EDEFF3;
+  --hud-k:#828C9D;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1117;
+    --surface:#161B24;
+    --surface-2:#1D2430;
+    --ink:#E7EBF3;
+    --ink-soft:#9BA5B7;
+    --ink-faint:#6E7889;
+    --rule:#262E3B;
+    --rule-strong:#39424F;
+    --accent:#5C94FC;
+    --accent-ink:#93B6FF;
+    --accent-wash:#182437;
+    --gold:#F0B429;
+    --gold-ink:#E5B252;
+    --gold-wash:#2A2314;
+    --brick:#D3684C;
+    --brick-ink:#E08D74;
+    --brick-wash:#2E1B15;
+    --hud:#000000;
+    --hud-ink:#E7EBF3;
+    --hud-k:#767F90;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1117;
+  --surface:#161B24;
+  --surface-2:#1D2430;
+  --ink:#E7EBF3;
+  --ink-soft:#9BA5B7;
+  --ink-faint:#6E7889;
+  --rule:#262E3B;
+  --rule-strong:#39424F;
+  --accent:#5C94FC;
+  --accent-ink:#93B6FF;
+  --accent-wash:#182437;
+  --gold:#F0B429;
+  --gold-ink:#E5B252;
+  --gold-wash:#2A2314;
+  --brick:#D3684C;
+  --brick-ink:#E08D74;
+  --brick-wash:#2E1B15;
+  --hud:#000000;
+  --hud-ink:#E7EBF3;
+  --hud-k:#767F90;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;
+  font-size:17px;
+  line-height:1.65;
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:68ch}
+
+/* ---------- HUD ---------- */
+.hud{background:var(--hud);color:var(--hud-ink);border-bottom:3px solid var(--accent)}
+.hud-inner{
+  max-width:1100px;margin:0 auto;padding:14px 24px;
+  display:flex;flex-wrap:wrap;gap:10px 36px;align-items:baseline;
+}
+.hud-item{display:flex;flex-direction:column;gap:5px}
+.hud-k{font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;color:var(--hud-k)}
+.hud-v{font-family:Silkscreen,monospace;font-size:13px;letter-spacing:.06em;color:var(--hud-ink)}
+.hud-v.is-accent{color:var(--accent)}
+.hud-v.is-gold{color:var(--gold)}
+
+/* ---------- Hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:48px;align-items:center;padding:64px 0 56px;border-bottom:1px solid var(--rule)}
+@media(max-width:760px){.hero{grid-template-columns:1fr;gap:32px;padding:44px 0 40px}}
+h1{
+  font-family:Archivo,system-ui,sans-serif;font-weight:800;
+  font-size:clamp(40px,7vw,68px);line-height:.98;letter-spacing:-.028em;
+  margin:0 0 20px;text-wrap:balance;
+}
+h1 em{font-style:normal;color:var(--accent-ink)}
+.dek{font-size:20px;line-height:1.55;color:var(--ink-soft);margin:0;max-width:44ch}
+.eyebrow{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.16em;color:var(--accent-ink);margin:0 0 18px}
+
+.rig{display:flex;flex-direction:column;align-items:center;gap:14px}
+.rig canvas{display:block;image-rendering:pixelated;width:232px;height:184px}
+.rig-label{
+  font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.14em;
+  color:var(--ink);background:var(--surface-2);border:1px solid var(--rule-strong);
+  padding:6px 12px;min-width:232px;text-align:center;white-space:nowrap;
+}
+
+/* ---------- Sections ---------- */
+section{padding:52px 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.sec-k{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.16em;color:var(--ink-faint);margin:0 0 12px}
+h2{
+  font-family:Archivo,system-ui,sans-serif;font-weight:800;
+  font-size:clamp(25px,3.4vw,34px);line-height:1.12;letter-spacing:-.02em;
+  margin:0 0 22px;text-wrap:balance;
+}
+h3{
+  font-family:Archivo,system-ui,sans-serif;font-weight:600;
+  font-size:19px;line-height:1.3;letter-spacing:-.01em;
+  margin:36px 0 12px;
+}
+p{margin:0 0 18px}
+strong{font-weight:600;color:var(--ink)}
+a{color:var(--accent-ink)}
+ul{margin:0 0 18px;padding-left:22px}
+li{margin-bottom:8px}
+li::marker{color:var(--accent)}
+
+/* ---------- Options ---------- */
+.opts{display:grid;gap:14px;margin:0 0 26px;max-width:68ch}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:18px 20px;background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rule-strong)}
+.opt.is-pick{border-left-color:var(--accent);background:var(--accent-wash)}
+.opt-tag{font-family:Silkscreen,monospace;font-size:14px;color:var(--ink-faint);line-height:1.5}
+.opt.is-pick .opt-tag{color:var(--accent-ink)}
+.opt-t{font-family:Archivo,sans-serif;font-weight:600;font-size:16px;margin:0 0 4px}
+.opt-b{margin:0;font-size:15.5px;line-height:1.55;color:var(--ink-soft)}
+
+/* ---------- Callout ---------- */
+.call{padding:20px 22px;background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--accent);margin:0 0 26px;max-width:68ch}
+.call.is-warn{border-top-color:var(--brick);background:var(--brick-wash)}
+.call-k{font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;color:var(--accent-ink);margin:0 0 8px}
+.call.is-warn .call-k{color:var(--brick-ink)}
+.call p{margin:0}
+.call p + p{margin-top:12px}
+
+/* ---------- Tables ---------- */
+.tw{overflow-x:auto;margin:0 0 26px;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
+th{
+  font-family:Silkscreen,monospace;font-size:9px;font-weight:400;letter-spacing:.12em;
+  text-align:left;padding:12px 16px;color:var(--ink-faint);
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;vertical-align:bottom;
+}
+td{padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5;color:var(--ink-soft)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink);font-weight:600}
+td code,p code,li code{font-family:"JetBrains Mono",monospace;font-size:.86em;background:var(--surface-2);padding:2px 5px;color:var(--ink)}
+.num{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ms{font-family:Silkscreen,monospace;font-size:12px;color:var(--accent-ink)}
+
+/* ---------- Beat strip ---------- */
+.strip-wrap{overflow-x:auto;padding-bottom:12px;margin:0 0 12px}
+.strip{display:flex;min-width:900px;border:1px solid var(--rule);background:var(--surface)}
+.beat{padding:16px 14px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:7px}
+.beat:last-child{border-right:0}
+.beat-t{font-family:"JetBrains Mono",monospace;font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-faint)}
+.beat-n{font-family:Archivo,sans-serif;font-weight:600;font-size:14.5px;line-height:1.25;color:var(--ink)}
+.beat-x{font-size:13px;line-height:1.45;color:var(--ink-soft);margin-top:auto}
+.beat-bar{height:5px;background:var(--accent);opacity:.55}
+.beat.is-peak .beat-bar{background:var(--brick);opacity:1}
+.beat.is-teach .beat-bar{background:var(--gold);opacity:1}
+.beat.is-end .beat-bar{background:var(--rule-strong);opacity:1}
+.flag{font-family:Silkscreen,monospace;font-size:8px;letter-spacing:.1em;color:var(--gold-ink);background:var(--gold-wash);padding:3px 6px;align-self:flex-start}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.1em;color:var(--ink-faint);margin:0 0 26px}
+.legend span{display:flex;align-items:center;gap:7px}
+.dot{width:10px;height:10px;display:inline-block}
+.dot.a{background:var(--accent);opacity:.55}
+.dot.g{background:var(--gold)}
+.dot.b{background:var(--brick)}
+
+pre{
+  font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.6;
+  background:var(--surface);border:1px solid var(--rule);
+  padding:18px 20px;overflow-x:auto;margin:0 0 26px;color:var(--ink-soft);
+}
+pre b{color:var(--accent-ink);font-weight:400}
+
+.q{counter-reset:q;list-style:none;padding:0;max-width:68ch}
+.q li{counter-increment:q;display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--rule);margin:0}
+.q li::before{content:counter(q,decimal-leading-zero);font-family:Silkscreen,monospace;font-size:12px;color:var(--accent-ink)}
+
+footer{padding:40px 0;font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-faint)}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="hud">
+  <div class="hud-inner">
+    <div class="hud-item"><span class="hud-k">PROJECT</span><span class="hud-v is-accent">SUPER DARIO</span></div>
+    <div class="hud-item"><span class="hud-k">WORLD</span><span class="hud-v">1-1</span></div>
+    <div class="hud-item"><span class="hud-k">RUN TIME</span><span class="hud-v">80 SEC</span></div>
+    <div class="hud-item"><span class="hud-k">MILESTONES</span><span class="hud-v">M0-M6</span></div>
+    <div class="hud-item"><span class="hud-k">ESTIMATE</span><span class="hud-v is-gold">9 DAYS</span></div>
+    <div class="hud-item"><span class="hud-k">STATUS</span><span class="hud-v">PLAN ONLY</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">PROJECT PLAN &middot; NOTHING BUILT YET</p>
+      <h1>Super <em>Dario</em> Bros.</h1>
+      <p class="dek">A webcam pose-controlled 8-bit platformer. Raise your arms and Dario jumps. Punch them forward and he throws a Claude Code sprite. The character isn't a puppet you operate &mdash; he's a mirror.</p>
+    </div>
+    <div class="rig">
+      <canvas id="rig" width="116" height="92" aria-label="Eight-bit Dario sprite cycling through idle, jump, and throw poses"></canvas>
+      <div class="rig-label" id="rig-label">IDLE / RUN</div>
+    </div>
+  </div>
+
+  <section>
+    <p class="sec-k">01 &middot; THE CENTRAL QUESTION</p>
+    <h2>What does the camera view actually look like?</h2>
+    <div class="col">
+      <p>This is the question you flagged, and it's the right one to settle first &mdash; everything else follows from it. Three options:</p>
+    </div>
+    <div class="opts">
+      <div class="opt">
+        <div class="opt-tag">A</div>
+        <div>
+          <p class="opt-t">AR overlay &mdash; you're composited into the level</p>
+          <p class="opt-b">Rejected. Your body lives in camera-space and the level lives in game-space; there's no honest way to make your real knee land on a virtual platform. This is a Kinect party game, not a Mario game.</p>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-tag">B</div>
+        <div>
+          <p class="opt-t">Side-scroller with a webcam picture-in-picture</p>
+          <p class="opt-b">Classic side view, small camera panel in the corner. Safe, readable, and a little inert.</p>
+        </div>
+      </div>
+      <div class="opt is-pick">
+        <div class="opt-tag">C</div>
+        <div>
+          <p class="opt-t">Side-scroller where the character <em>is</em> the mirror</p>
+          <p class="opt-b">No separate feed. Dario's limbs are continuously driven by yours. Your arms go up, his arms go up, and the jump happens.</p>
+        </div>
+      </div>
+    </div>
+    <div class="call">
+      <p class="call-k">RECOMMENDATION</p>
+      <p><strong>C as the game, B as the instrument panel.</strong> The side view was your instinct and it's correct. A character that live-puppets your body is what makes it feel like <em>you're</em> Dario rather than you operating a remote control &mdash; the feedback loop becomes proprioceptive. You don't check a UI to learn whether the gesture registered; you look at whether the little guy's arms are up.</p>
+      <p>Keep the PiP anyway, for one reason: when a gesture <em>doesn't</em> register, the player needs to know why. Small, cornered, showing your silhouette with the tracked skeleton over it and a framing guide box. It answers "am I in frame, is the room too dark" without pulling focus &mdash; and during development it's your entire debugging surface.</p>
+    </div>
+    <div class="col">
+      <p>So: full side-scrolling stage, Dario puppeted by your pose, skeleton PiP bottom-right, and two indicator lamps (JUMP / THROW) that flash on the rising edge so you can see the system's read of you in real time.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">02 &middot; ARCHITECTURE</p>
+    <h2>Separate "pose &rarr; intent" from "intent &rarr; physics"</h2>
+    <div class="col">
+      <p>This is the decision that matters most. One module reads camera frames and emits an intent struct, and does nothing else:</p>
+    </div>
+    <pre>{ jump: <b>false</b>, throw: <b>false</b>, lean: <b>-0.2</b>, crouch: <b>false</b>,
+  armAngleL: <b>1.2</b>, armAngleR: <b>1.1</b>, tracking: <b>'good'</b> }</pre>
+    <div class="col">
+      <p>The game reads that struct at 60Hz and never sees a landmark. Three things fall out for free:</p>
+      <ul>
+        <li><strong>Keyboard input is always live.</strong> It writes the same struct. You can build and test the whole game with no camera attached, and anyone can play sitting down.</li>
+        <li><strong>The game becomes testable.</strong> Feed recorded intent traces, assert on outcomes.</li>
+        <li><strong>The pose model is swappable</strong> without touching game code.</li>
+      </ul>
+      <p>Run the two on separate clocks. Pose inference gets its own loop capped near 30fps; the game runs a fixed 60Hz timestep and reads the most recent intent. If inference stutters, the game keeps animating smoothly instead of hitching.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">03 &middot; CONTROLS</p>
+    <h2>Gesture vocabulary</h2>
+    <div class="col">
+      <p>Everything is measured in units of <strong>your own shoulder width</strong>, captured at calibration, so it works whether you're two feet or eight feet from the camera.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Intent</th><th>Trigger</th><th>Character response</th></tr></thead>
+      <tbody>
+        <tr><td>Run</td><td>Automatic &mdash; Dario always runs right</td><td>Run cycle</td></tr>
+        <tr><td>Jump</td><td>Rising edge: both wrists cross above the shoulder line</td><td>Arms shoot up, jump</td></tr>
+        <tr><td>Throw</td><td>Either wrist extends past its shoulder horizontally, near shoulder height</td><td>Arms thrust forward, sprite fires</td></tr>
+        <tr><td>Crouch <span class="num">v1.5</span></td><td>Head drops below 0.85&times; calibrated standing height</td><td>Duck</td></tr>
+        <tr><td>Speed <span class="num">v1.5</span></td><td>Shoulder midpoint offset from calibrated center</td><td>Lean forward to sprint, back to slow</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <h3>Why auto-run</h3>
+      <p>You said "you naturally are moving forward," and auto-run is the right reading of that. Continuous horizontal control from body position is jittery, tiring, and competes for the same body signal the jump needs. Locking the run frees your arms for the two things that matter. Lean-to-modulate-speed is a good addition once the core feels solid.</p>
+      <h3>Why jump is an edge, not a hold</h3>
+      <p>Holding your arms overhead is exhausting inside of a minute. Jump fires on the <em>transition</em> into arms-up and your arms come straight back down. That means variable jump height needs another source &mdash; proposal: <strong>how fast your arms rise sets the jump impulse.</strong> Flick up hard for a full jump, drift up for a hop. It reads as natural, and it's a single derivative you already have.</p>
+      <h3>Four signal-processing rules, or it will feel broken</h3>
+      <ul>
+        <li><strong>Smoothing.</strong> One-Euro filter on landmarks &mdash; low-pass but latency-aware. A plain moving average adds enough delay to make jumps feel mushy.</li>
+        <li><strong>Hysteresis.</strong> Dual thresholds: fire at 1.05&times; shoulder height, don't re-arm until wrists drop below 0.95&times;. Kills chatter at the boundary.</li>
+        <li><strong>Refractory period.</strong> Roughly 250ms cooldown on throw, so one arm motion isn't read as four.</li>
+        <li><strong>Confidence gating.</strong> If landmark visibility drops, freeze the last good intent and surface "step back into frame" in the PiP. Never let a low-confidence frame trigger an action.</li>
+      </ul>
+      <h3>Calibration</h3>
+      <p>Three seconds of standing still at the start of a run captures shoulder width, shoulder height, and head height. Show a live countdown with the skeleton overlay so the player can see it working. Offer a recalibrate key, and a seated profile for players who can't stand.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">04 &middot; CONSEQUENCE</p>
+    <h2>Latency changes the level design</h2>
+    <div class="col">
+      <p>A gesture-driven jump lands 100&ndash;200ms later than a keypress: model inference, plus filter delay, plus your own body's travel time. That's not a bug to optimize away &mdash; it's a constraint to design around. The course has to be built for a body, not for thumbs.</p>
+      <ul>
+        <li>Wide, forgiving landing platforms</li>
+        <li>Slower scroll speed than Mario</li>
+        <li>Generous coyote time &mdash; ~150ms of grace after leaving a ledge</li>
+        <li>Jump buffering &mdash; ~200ms, so a jump registered just before landing still fires</li>
+        <li>Enemy contact costs a size tier, not a life</li>
+        <li>Two checkpoints in a 90-second course</li>
+      </ul>
+      <p>Build 1-1 to be readable at a glance and hard to fail by accident. The challenge should come from performing the gesture, never from parsing the level.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">05 &middot; MOTIFS</p>
+    <h2>Dario runs through a datacenter</h2>
+    <div class="col">
+      <p>Keeping enemies generic rather than competitor-branded &mdash; where you landed too &mdash; is both funnier and better for anything you might eventually share.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Mario</th><th>Super Dario</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Mario</td><td>Dario</td><td>8-bit, blue sweater, dark curly hair. Deliberately not a red hat and overalls &mdash; the sweater reads as him anyway</td></tr>
+        <tr><td>Fireball</td><td>Claude Code sprite</td><td>Little terminal window with a blinking cursor. Arcs and bounces. On hit the enemy poofs and "REFACTORED" pops up</td></tr>
+        <tr><td>Goomba</td><td>Hallucination</td><td>Wobbly mushroom, walks left, one-hit stomp. Kept as a mushroom, per your call</td></tr>
+        <tr><td>Koopa</td><td>Paperclip</td><td>8-bit paperclip with legs. Stomp it and it curls into a coil you can kick down the lane</td></tr>
+        <tr><td>Green pipe</td><td>Server rack</td><td>Same silhouette, same jump affordance, blinking LEDs. Enterable later for bonus rooms</td></tr>
+        <tr><td>Coin</td><td>Token</td><td>Collect 100 for an extra life. Token arcs trail over the clouds</td></tr>
+        <tr><td>Fire flower</td><td>Claude Code power-up</td><td>Terminal-window pickup that <em>enables the throw gesture</em></td></tr>
+        <tr><td>Super mushroom</td><td>More compute</td><td>GPU chip pickup, Dario grows</td></tr>
+        <tr><td>Star</td><td>Constitutional shield</td><td>Brief flashing invulnerability. Optional for v1</td></tr>
+        <tr><td>Clouds</td><td>Clouds</td><td>Jumpable platforms with token arcs above</td></tr>
+        <tr><td>Flagpole</td><td>DEPLOY flag</td><td>End of course, score tally</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call">
+      <p class="call-k">BUILD THE LEVEL AROUND THIS ONE</p>
+      <p><strong>The power-up is the tutorial.</strong> Before you collect the Claude Code item, sticking your arms out does nothing but a small shrug animation. The moment you grab it, the coach prompt reads "ARMS OUT!" and the gesture goes live. You learn the control exactly when it becomes useful, and you never read an instruction screen.</p>
+    </div>
+    <div class="col">
+      <p><strong>One Dario, not brothers.</strong> Single player. Two-player couch mode &mdash; two people in frame, the pose model tracks both &mdash; is a genuinely easy stretch goal, but it stays a stretch goal.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">06 &middot; LEVEL DESIGN</p>
+    <h2>World 1-1 &mdash; "The Scaling Course"</h2>
+    <div class="col">
+      <p>Roughly 80 seconds, one screen tall, scrolling right. Seven beats &mdash; bar width below is proportional to how long each one lasts.</p>
+    </div>
+    <div class="strip-wrap">
+      <div class="strip">
+        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">0&ndash;8s</span><span class="beat-n">Calibration porch</span><span class="beat-x">Flat ground, no hazards. "RAISE BOTH HANDS" &rarr; Dario hops. Teaches jump at zero risk</span></div>
+        <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">8&ndash;20s</span><span class="beat-n">First racks</span><span class="beat-x">Two single server racks, wide landings. Jump timing</span></div>
+        <div class="beat" style="flex:12"><div class="beat-bar"></div><span class="beat-t">20&ndash;32s</span><span class="beat-n">First hallucination</span><span class="beat-x">One enemy walking at you &mdash; stomp or jump over<br><span class="flag">CHECKPOINT</span></span></div>
+        <div class="beat is-teach" style="flex:8"><div class="beat-bar"></div><span class="beat-t">32&ndash;40s</span><span class="beat-n">Claude Code power-up</span><span class="beat-x">On a low cloud. "ARMS OUT!" Two enemies to practice on. Teaches throw</span></div>
+        <div class="beat" style="flex:15"><div class="beat-bar"></div><span class="beat-t">40&ndash;55s</span><span class="beat-n">Pit + cloud chain</span><span class="beat-x">Three clouds over a gap, token arc above<br><span class="flag">CHECKPOINT</span></span></div>
+        <div class="beat is-peak" style="flex:15"><div class="beat-bar"></div><span class="beat-t">55&ndash;70s</span><span class="beat-n">Paperclip pair + double rack</span><span class="beat-x">The one real difficulty spike. Both gestures together</span></div>
+        <div class="beat is-end" style="flex:10"><div class="beat-bar"></div><span class="beat-t">70&ndash;80s</span><span class="beat-n">DEPLOY flag</span><span class="beat-x">Score tally, "RUN AGAIN?"</span></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="dot a"></i>PLAY</span>
+      <span><i class="dot g"></i>TEACHES A GESTURE</span>
+      <span><i class="dot b"></i>DIFFICULTY SPIKE</span>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">07 &middot; STACK</p>
+    <h2>Browser, no server</h2>
+    <div class="col">
+      <p>Everything runs client-side and the camera feed never leaves the machine &mdash; worth stating out loud on the title screen.</p>
+      <ul>
+        <li><strong>Pose:</strong> MediaPipe Tasks Vision <code>PoseLandmarker</code>, GPU delegate, <code>VIDEO</code> mode. 33 landmarks, 30&ndash;60fps on a laptop. Alternative: TF.js MoveNet Lightning.</li>
+        <li><strong>Rendering:</strong> hand-rolled Canvas2D, fixed timestep, AABB collision. A 2D platformer is well-trodden ground and the whole game is roughly 800 lines. Kaplay is the escape hatch if the camera work eats more time than expected.</li>
+        <li><strong>Sprites as source code.</strong> Pixel art authored as arrays of strings with a palette lookup, baked to offscreen canvases at load. No binary assets, fully diffable in git, trivially editable. The sprite at the top of this page is drawn that way.</li>
+        <li><strong>Audio:</strong> WebAudio square-wave blips generated in code. No asset licensing, and correctly 8-bit.</li>
+        <li><strong>Build:</strong> Vite. <code>getUserMedia</code> needs a secure context &mdash; localhost is fine, but demoing from another device needs a cert or a tunnel.</li>
+      </ul>
+    </div>
+    <pre>super-dario/
+  index.html
+  src/
+    pose/    camera.js  landmarker.js  calibration.js  gestures.js  filter.js
+    input/   intent.js  keyboard.js
+    game/    loop.js  physics.js  entities.js  level-1-1.js  camera2d.js
+    render/  sprites.js  draw.js  hud.js  pip.js
+    audio/   blips.js</pre>
+  </section>
+
+  <section>
+    <p class="sec-k">08 &middot; SEQUENCE</p>
+    <h2>Milestones</h2>
+    <div class="tw"><table>
+      <thead><tr><th></th><th>Milestone</th><th>Days</th><th>Done when</th></tr></thead>
+      <tbody>
+        <tr><td class="ms">M0</td><td>Spike &mdash; go/no-go</td><td class="num">0.5</td><td>Webcam + landmarker + skeleton overlay, gestures logged to console. <strong>Measure end-to-end latency here.</strong> If it's unusable, the whole design changes</td></tr>
+        <tr><td class="ms">M1</td><td>Playable on keyboard</td><td class="num">2</td><td>Full platformer, all of 1-1, arrows/space/F. No camera. This is already a real game</td></tr>
+        <tr><td class="ms">M2</td><td>Intent bus wired</td><td class="num">1</td><td>Gestures drive the same intents. Both inputs live simultaneously</td></tr>
+        <tr><td class="ms">M3</td><td>Puppet rig</td><td class="num">1</td><td>Dario's arms follow yours continuously, not just on trigger</td></tr>
+        <tr><td class="ms">M4</td><td>Art, audio, juice</td><td class="num">2</td><td>Sprites, blips, screen shake, particles, "REFACTORED" popups</td></tr>
+        <tr><td class="ms">M5</td><td>Onboarding + tuning</td><td class="num">1.5</td><td>Calibration screen, sensitivity slider, coach prompts. <strong>Playtest with three people who've never seen it</strong></td></tr>
+        <tr><td class="ms">M6</td><td>Polish</td><td class="num">1</td><td>Title screen, score, restart flow</td></tr>
+      </tbody>
+    </table></div>
+    <div class="col">
+      <p>About nine days of focused work. M0 and M1 are the two that de-risk everything: M0 tells you whether the premise holds, and M1 gives you a game that's fun before any camera is involved.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">09 &middot; RISKS</p>
+    <h2>What could make this not fun</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Latency makes jumps feel unfair</td><td>Coyote time, jump buffering, forgiving level design. Measure at M0 before committing</td></tr>
+        <tr><td>Arm fatigue</td><td>Edge-triggered jump, 80-second course, sit-down keyboard mode always available</td></tr>
+        <tr><td>Lighting and framing</td><td>Framing guide box in the PiP, explicit "stand about six feet back, waist up" on the title screen</td></tr>
+        <tr><td>Laptop thermals</td><td>Cap inference at 30fps, GPU delegate, decoupled loops</td></tr>
+        <tr><td>Standing requirement</td><td>Seated calibration profile; one-arm mode where either wrist above the shoulder jumps</td></tr>
+        <tr><td>Gesture ambiguity</td><td>A fast arms-up can clip through the throw zone. Tune so the throw band sits clearly below the jump band, and let jump win ties</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call is-warn">
+      <p class="call-k">GROUND RULES</p>
+      <p>Two things worth settling before this leaves your laptop: draw all sprites from scratch rather than lifting Nintendo assets, and check with Dario before showing it publicly. An affectionate 8-bit caricature is a different thing shared than it is as a demo on your own machine.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-k">10 &middot; OVER TO YOU</p>
+    <h2>Open questions</h2>
+    <ol class="q">
+      <li><span><strong>Variable jump height from arm speed</strong> &mdash; natural, or too twitchy? M0 answers this cheaply.</span></li>
+      <li><span><strong>Does the throw need aiming?</strong> Arm angle could set the projectile arc &mdash; more expressive, harder to control. Fixed arc for v1?</span></li>
+      <li><span><strong>Poof or convert?</strong> A "REFACTORED" enemy that flips sides and follows you is more charming, and more work.</span></li>
+      <li><span><strong>How long is a run?</strong> Eighty seconds is a demo. Does this need three courses, or is one perfect course the goal?</span></li>
+      <li><span><strong>Where does it get shown?</strong> A demo you run for people is a very different build from something people load cold in a browser &mdash; the second needs far more onboarding.</span></li>
+    </ol>
+  </section>
+
+  <footer>SUPER DARIO BROS. &middot; PLAN v1 &middot; NO CODE WRITTEN YET</footer>
+</div>
+
+<script>
+(function(){
+  var PAL={'.':null,k:'#1A1A2E',h:'#3A2A1E',s:'#E8B08A',b:'#3B5BA5',t:'#2A2F3E',w:'#FFFFFF',g:'#59D66A',d:'#101820'};
+  var IDLE=[
+  "......hhhh......",".....hhhhhh.....","....hhhhhhhh....","....hhssssshh...",
+  "....hsssssssh...","....hswssswsh...","....hsssssssh...",".....ssssss.....",
+  "......ssss......",".....bbbbbb.....","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+  "..bbbbbbbbbbbb..","..bbbbbbbbbbbb..","..bb.bbbbbb.bb..","..ss.bbbbbb.ss..",
+  ".....tttttt.....",".....tttttt.....",".....tttttt.....",".....tt.tt......",
+  ".....tt.tt......","....kkk.kkk....."];
+  var JUMP=[
+  "..ss..hhhh..ss..","..bb.hhhhhh.bb..","..bb.hhhhhh.bb..","..bb.hssssh.bb..",
+  "..bb.ssssss.bb..","..bb.swssws.bb..","..bb.ssssss.bb..","..bb..ssss..bb..",
+  "..bb..ssss..bb..","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..","...bbbbbbbbbb...",
+  "...bbbbbbbbbb...","....bbbbbbbb....","....bbbbbbbb....",".....tttttt.....",
+  ".....tttttt.....",".....tttttt.....","....tt....tt....","....tt....tt....",
+  "...kkk....kkk...","................"];
+  var THROW=[
+  "......hhhh......",".....hhhhhh.....","....hhhhhhhh....","....hhssssshh...",
+  "....hsssssssh...","....hswssswsh...","....hsssssssh...",".....ssssss.....",
+  "......ssss......",".....bbbbbb.....","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+  "..bbbbbbbbbbbbss","..bbbbbbbbbbbbss","..bbbbbbbbbbbb..","...bbbbbbbbbb...",
+  ".....tttttt.....",".....tttttt.....",".....tttttt.....",".....tt.tt......",
+  ".....tt.tt......","....kkk.kkk....."];
+  var BOLT=["dddddddd","dwwwwwwd","dwgd..wd","dwgd..wd","dwwwwwwd","dddddddd"];
+
+  var c=document.getElementById('rig'), L=document.getElementById('rig-label');
+  if(!c||!c.getContext) return;
+  var x=c.getContext('2d'), S=4;
+
+  function blit(art,ox,oy){
+    for(var r=0;r<art.length;r++){
+      for(var q=0;q<art[r].length;q++){
+        var col=PAL[art[r][q]];
+        if(col){x.fillStyle=col;x.fillRect(ox+q*S,oy+r*S,S,S);}
+      }
+    }
+  }
+  function frame(art,label,bolt){
+    x.clearRect(0,0,c.width,c.height);
+    blit(art,14,2);
+    if(bolt) blit(BOLT,80,50);
+    L.textContent=label;
+  }
+
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  frame(IDLE,'IDLE / RUN',false);
+  if(reduce) return;
+
+  var steps=[[IDLE,'IDLE / RUN',false,2000],[JUMP,'ARMS UP = JUMP',false,1700],[THROW,'ARMS OUT = THROW',true,1700]];
+  var i=0;
+  (function tick(){
+    var s=steps[i];
+    frame(s[0],s[1],s[2]);
+    i=(i+1)%steps.length;
+    setTimeout(tick,s[3]);
+  })();
+})();
+</script>
